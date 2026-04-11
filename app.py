@@ -143,4 +143,11 @@ def kupon_cizdir(baslik, ikon, renk, kupon_listesi, vurgulu=False):
         for index, k_mac in enumerate(kupon_listesi):
             toplam_guven += k_mac["guven"]
             
-            st.
+            st.markdown(f"**{index+1}.** {k_mac['mac']} *(⏰ {k_mac['saat']})*")
+            st.info(f"👉 **{k_mac['tercih']}** | YZ Güveni: %{k_mac['guven']:.0f}")
+            
+        ortalama_guven = toplam_guven / len(kupon_listesi)
+        st.success(f"📈 Kupon Ortalama Başarı İhtimali: **%{ortalama_guven:.0f}**")
+
+# --- ARAYÜZ ---
+data = bugunun_maclarini_getir()
