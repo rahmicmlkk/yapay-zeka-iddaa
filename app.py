@@ -191,88 +191,92 @@ if "response" in data and len(data["response"]) > 0:
                             "oran_iy": tahminler["İY 0.5 Üst"]
                         })
 
-                # --- 1. BÖLÜM: VIP KOMBİNE KUPONLAR (Sekmesiz doğrudan görünür) ---
+                # YENİ: KATEGORİ (SEKME) SİSTEMİ EKLENDİ
                 st.markdown("---")
-                st.markdown("### 🎯 Elite Üyeler İçin YZ Seçimi Kombineler")
-                
-                if len(tum_analizler) >= 3:
-                    karma_adaylar = []
-                    kullanilan_karma = []
-                    
-                    best_ms = sorted(tum_analizler, key=lambda x: x["guven_genel"], reverse=True)[0]
-                    karma_adaylar.append({"mac": best_ms["mac"], "saat": best_ms["saat"], "tercih": best_ms["tercih_genel"], "guven": best_ms["guven_genel"]})
-                    kullanilan_karma.append(best_ms["mac"])
-                    
-                    best_gol = sorted([m for m in tum_analizler if m["mac"] not in kullanilan_karma], key=lambda x: x["oran_ust"], reverse=True)[0]
-                    karma_adaylar.append({"mac": best_gol["mac"], "saat": best_gol["saat"], "tercih": "2.5 Üst", "guven": best_gol["oran_ust"]})
-                    kullanilan_karma.append(best_gol["mac"])
-                    
-                    best_korner = sorted([m for m in tum_analizler if m["mac"] not in kullanilan_karma], key=lambda x: x["oran_korner"], reverse=True)[0]
-                    karma_adaylar.append({"mac": best_korner["mac"], "saat": best_korner["saat"], "tercih": "Korner 8.5 Üst", "guven": best_korner["oran_korner"]})
-                    kullanilan_karma.append(best_korner["mac"])
-                    
-                    kupon_cizdir("PLATINUM KARMA KUPON", "💎", "#D4AF37", karma_adaylar, vurgulu=True)
+                tab_kombineler, tab_ligler = st.tabs(["🎯 VIP KOMBİNELER", "📋 LİG LİG TÜM MAÇLAR"])
 
-                banko_adaylar = sorted([m for m in tum_analizler if m["mac"] not in kullanilan_karma], key=lambda x: x["guven_genel"], reverse=True)
-                kupon_banko = [{"mac": m["mac"], "saat": m["saat"], "tercih": m["tercih_genel"], "guven": m["guven_genel"]} for m in banko_adaylar[:3]]
-                kullanilan_maclar = kullanilan_karma + [m["mac"] for m in kupon_banko]
-                
-                gol_adaylar = sorted([m for m in tum_analizler if m["mac"] not in kullanilan_maclar], key=lambda x: x["oran_ust"], reverse=True)
-                kupon_gol = [{"mac": m["mac"], "saat": m["saat"], "tercih": "2.5 Üst", "guven": m["oran_ust"]} for m in gol_adaylar[:3]]
-                kullanilan_maclar.extend([m["mac"] for m in kupon_gol])
-                
-                iy_adaylar = sorted([m for m in tum_analizler if m["mac"] not in kullanilan_maclar], key=lambda x: x["oran_iy"], reverse=True)
-                kupon_iy = [{"mac": m["mac"], "saat": m["saat"], "tercih": "İlk Yarı 0.5 Üst", "guven": m["oran_iy"]} for m in iy_adaylar[:3]]
+                # --- 1. KATEGORİ: VIP KOMBİNE KUPONLAR ---
+                with tab_kombineler:
+                    st.markdown("### 🤖 Elite Üyeler İçin YZ Seçimi Kombineler")
+                    
+                    if len(tum_analizler) >= 3:
+                        karma_adaylar = []
+                        kullanilan_karma = []
+                        
+                        best_ms = sorted(tum_analizler, key=lambda x: x["guven_genel"], reverse=True)[0]
+                        karma_adaylar.append({"mac": best_ms["mac"], "saat": best_ms["saat"], "tercih": best_ms["tercih_genel"], "guven": best_ms["guven_genel"]})
+                        kullanilan_karma.append(best_ms["mac"])
+                        
+                        best_gol = sorted([m for m in tum_analizler if m["mac"] not in kullanilan_karma], key=lambda x: x["oran_ust"], reverse=True)[0]
+                        karma_adaylar.append({"mac": best_gol["mac"], "saat": best_gol["saat"], "tercih": "2.5 Üst", "guven": best_gol["oran_ust"]})
+                        kullanilan_karma.append(best_gol["mac"])
+                        
+                        best_korner = sorted([m for m in tum_analizler if m["mac"] not in kullanilan_karma], key=lambda x: x["oran_korner"], reverse=True)[0]
+                        karma_adaylar.append({"mac": best_korner["mac"], "saat": best_korner["saat"], "tercih": "Korner 8.5 Üst", "guven": best_korner["oran_korner"]})
+                        kullanilan_karma.append(best_korner["mac"])
+                        
+                        kupon_cizdir("PLATINUM KARMA KUPON", "💎", "#D4AF37", karma_adaylar, vurgulu=True)
 
-                col1, col2, col3 = st.columns(3)
-                with col1:
-                    kupon_cizdir("GÜNÜN BANKOSU", "🔥", "#FF4B4B", kupon_banko)
-                with col2:
-                    kupon_cizdir("GOL ŞENLİĞİ", "⚽", "#3B82F6", kupon_gol)
-                with col3:
-                    kupon_cizdir("İLK YARI GOLLÜ", "⏱️", "#F59E0B", kupon_iy)
+                    banko_adaylar = sorted([m for m in tum_analizler if m["mac"] not in kullanilan_karma], key=lambda x: x["guven_genel"], reverse=True)
+                    kupon_banko = [{"mac": m["mac"], "saat": m["saat"], "tercih": m["tercih_genel"], "guven": m["guven_genel"]} for m in banko_adaylar[:3]]
+                    kullanilan_maclar = kullanilan_karma + [m["mac"] for m in kupon_banko]
+                    
+                    gol_adaylar = sorted([m for m in tum_analizler if m["mac"] not in kullanilan_maclar], key=lambda x: x["oran_ust"], reverse=True)
+                    kupon_gol = [{"mac": m["mac"], "saat": m["saat"], "tercih": "2.5 Üst", "guven": m["oran_ust"]} for m in gol_adaylar[:3]]
+                    kullanilan_maclar.extend([m["mac"] for m in kupon_gol])
+                    
+                    iy_adaylar = sorted([m for m in tum_analizler if m["mac"] not in kullanilan_maclar], key=lambda x: x["oran_iy"], reverse=True)
+                    kupon_iy = [{"mac": m["mac"], "saat": m["saat"], "tercih": "İlk Yarı 0.5 Üst", "guven": m["oran_iy"]} for m in iy_adaylar[:3]]
 
-                # --- 2. BÖLÜM: TÜM LİGLERİN DETAYLI ANALİZİ (Sekmesiz, hemen altta) ---
-                st.markdown("---")
-                st.markdown("### 📋 Tüm Seçili Liglerin Kapsamlı İstihbaratı")
-                
-                for lig, maclar in lig_gruplari.items():
-                    with st.expander(f"🏆 {lig} ({len(maclar)} Maç)"):
-                        for i in range(0, len(maclar), 3):
-                            cols = st.columns(3) 
-                            for j in range(3):
-                                if i + j < len(maclar):
-                                    mac = maclar[i + j]
-                                    with cols[j]:
-                                        with st.container(border=True):
-                                            ev_sahibi = mac["teams"]["home"]["name"]
-                                            ev_logo = mac["teams"]["home"]["logo"]
-                                            deplasman = mac["teams"]["away"]["name"]
-                                            dep_logo = mac["teams"]["away"]["logo"]
-                                            
-                                            saat = turkiye_saati_hesapla(mac["fixture"]["date"])
-                                            
-                                            ev_guc, ev_form = takim_istatistikleri_getir(ev_sahibi)
-                                            dep_guc, dep_form = takim_istatistikleri_getir(deplasman)
-                                            tahminler, banko_tercih, banko_oran = tum_tahminleri_hesapla(ev_guc, dep_guc, ev_form, dep_form, yapay_zeka)
-                                            
-                                            st.markdown(f"<div style='text-align: center; color: gray;'>⏰ {saat}</div>", unsafe_allow_html=True)
-                                            col_logo1, col_isim, col_logo2 = st.columns([1, 3, 1])
-                                            with col_logo1:
-                                                st.image(ev_logo, width=30)
-                                            with col_isim:
-                                                st.markdown(f"<div style='text-align: center; font-size: 13px;'><b>{ev_sahibi}</b><br>vs<br><b>{deplasman}</b></div>", unsafe_allow_html=True)
-                                            with col_logo2:
-                                                st.image(dep_logo, width=30)
-                                            
-                                            st.markdown("---")
-                                            st.success(f"💎 **{banko_tercih}**\n\n YZ Güveni: %{banko_oran:.0f}")
-                                            
-                                            with st.expander("📊 Diğer İhtimaller"):
-                                                st.caption(f"İY 0.5 Üst: %{tahminler['İY 0.5 Üst']:.0f}")
-                                                st.caption(f"2.5 Üst: %{tahminler['2.5 Üst']:.0f}")
-                                                st.caption(f"KG Var: %{tahminler['KG Var']:.0f}")
-                                                st.caption(f"Korner 8.5 Üst: %{tahminler['Korner 8.5 Üst']:.0f}")
+                    col1, col2, col3 = st.columns(3)
+                    with col1:
+                        kupon_cizdir("GÜNÜN BANKOSU", "🔥", "#FF4B4B", kupon_banko)
+                    with col2:
+                        kupon_cizdir("GOL ŞENLİĞİ", "⚽", "#3B82F6", kupon_gol)
+                    with col3:
+                        kupon_cizdir("İLK YARI GOLLÜ", "⏱️", "#F59E0B", kupon_iy)
+
+                # --- 2. KATEGORİ: TÜM LİGLERİN DETAYLI ANALİZİ ---
+                with tab_ligler:
+                    st.markdown("### 📋 Tüm Seçili Liglerin Kapsamlı İstihbaratı")
+                    
+                    for lig, maclar in lig_gruplari.items():
+                        with st.expander(f"🏆 {lig} ({len(maclar)} Maç)"):
+                            for i in range(0, len(maclar), 3):
+                                cols = st.columns(3) 
+                                for j in range(3):
+                                    if i + j < len(maclar):
+                                        mac = maclar[i + j]
+                                        with cols[j]:
+                                            with st.container(border=True):
+                                                ev_sahibi = mac["teams"]["home"]["name"]
+                                                ev_logo = mac["teams"]["home"]["logo"]
+                                                deplasman = mac["teams"]["away"]["name"]
+                                                dep_logo = mac["teams"]["away"]["logo"]
+                                                
+                                                saat = turkiye_saati_hesapla(mac["fixture"]["date"])
+                                                
+                                                ev_guc, ev_form = takim_istatistikleri_getir(ev_sahibi)
+                                                dep_guc, dep_form = takim_istatistikleri_getir(deplasman)
+                                                tahminler, banko_tercih, banko_oran = tum_tahminleri_hesapla(ev_guc, dep_guc, ev_form, dep_form, yapay_zeka)
+                                                
+                                                st.markdown(f"<div style='text-align: center; color: gray;'>⏰ {saat}</div>", unsafe_allow_html=True)
+                                                col_logo1, col_isim, col_logo2 = st.columns([1, 3, 1])
+                                                with col_logo1:
+                                                    st.image(ev_logo, width=30)
+                                                with col_isim:
+                                                    st.markdown(f"<div style='text-align: center; font-size: 13px;'><b>{ev_sahibi}</b><br>vs<br><b>{deplasman}</b></div>", unsafe_allow_html=True)
+                                                with col_logo2:
+                                                    st.image(dep_logo, width=30)
+                                                
+                                                st.markdown("---")
+                                                st.success(f"💎 **{banko_tercih}**\n\n YZ Güveni: %{banko_oran:.0f}")
+                                                
+                                                with st.expander("📊 Diğer İhtimaller"):
+                                                    st.caption(f"İY 0.5 Üst: %{tahminler['İY 0.5 Üst']:.0f}")
+                                                    st.caption(f"2.5 Üst: %{tahminler['2.5 Üst']:.0f}")
+                                                    st.caption(f"KG Var: %{tahminler['KG Var']:.0f}")
+                                                    st.caption(f"Korner 8.5 Üst: %{tahminler['Korner 8.5 Üst']:.0f}")
     else:
         st.warning("Lütfen analiz yapmak için yukarıdan en az bir lig seçin.")
 else:
