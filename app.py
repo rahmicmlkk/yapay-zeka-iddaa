@@ -6,7 +6,9 @@ from sklearn.ensemble import RandomForestClassifier
 
 # GÜVENLİK UYARISI: API Anahtarı
 API_KEY = st.secrets["BENIM_SIFREM"]
-VIP_PAROLA = "PREMIUM10"
+
+# YENİ VIP GİRİŞ ŞİFRESİ
+VIP_PAROLA = "gerze"
 
 st.set_page_config(page_title="VIP YZ Tahmin Pro", layout="wide", page_icon="💎")
 
