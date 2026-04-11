@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 from sklearn.ensemble import RandomForestClassifier
 
 # GÜVENLİK UYARISI: API Anahtarı Streamlit Secrets'tan çekiliyor
@@ -30,6 +30,18 @@ def takim_istatistikleri_getir(takim_adi):
     guc = (len(takim_adi) % 5) + 5  
     form = (len(takim_adi) % 6) + 4 
     return guc, form
+
+# --- TÜRKİYE SAATİNE ÇEVİRME ---
+def turkiye_saati_hesapla(api_tarih_str):
+    utc_saat = datetime.strptime(api_tarih_str[:16], "%Y-%m-%dT%H:%M")
+    tr_saat = utc_saat + timedelta(hours=3) 
+    return tr_saat.strftime("%H:%M")
+
+# --- YAPAY ZEKA DEĞER ORANI HESAPLAMA ---
+def oran_hesapla(guven_yuzdesi):
+    if guven_yuzdesi <= 0: return 1.00
+    oran = (100 / guven_yuzdesi) * 0.92
+    return max(1.05, round(oran, 2)) 
 
 # --- API'DEN VERİ ÇEKME ---
 @st.cache_data(ttl=3600)
@@ -74,7 +86,7 @@ def tum_tahminleri_hesapla(ev_guc, dep_guc, ev_form, dep_form, model):
     
     return tahminler, en_iyi_tercih, en_iyi_oran
 
-# --- KUPON ÇİZDİRME YARDIMCI FONKSİYONU ---
+# --- KUPON ÇİZDİRME VE TOPLAM ORAN ---
 def kupon_cizdir(baslik, ikon, renk, kupon_listesi):
     with st.container(border=True):
         st.markdown(f"<h4 style='text-align: center; color: {renk};'>{ikon} {baslik} {ikon}</h4>", unsafe_allow_html=True)
@@ -83,14 +95,16 @@ def kupon_cizdir(baslik, ikon, renk, kupon_listesi):
             st.warning("Bu kategori için yeterli maç bulunamadı.")
             return
 
-        ortalama_guven = 0
+        toplam_oran = 1.0
+        
         for index, k_mac in enumerate(kupon_listesi):
-            ortalama_guven += k_mac["guven"]
-            st.markdown(f"**{index+1}.** {k_mac['mac']} *(⏰ {k_mac['saat']})*")
-            st.info(f"👉 **{k_mac['tercih']}** | Güven: %{k_mac['guven']:.0f}")
+            mac_orani = oran_hesapla(k_mac["guven"])
+            toplam_oran *= mac_orani
             
-        genel_oran = ortalama_guven / len(kupon_listesi)
-        st.success(f"📈 Ortalama Başarı İhtimali: **%{genel_oran:.0f}**")
+            st.markdown(f"**{index+1}.** {k_mac['mac']} *(⏰ {k_mac['saat']})*")
+            st.info(f"👉 **{k_mac['tercih']}** | Güven: %{k_mac['guven']:.0f} | **Oran: {mac_orani:.2f}**")
+            
+        st.success(f"💰 Toplam Kupon Oranı: **{toplam_oran:.2f}**")
 
 # --- ARAYÜZ ---
 data = bugunun_maclarini_getir()
@@ -107,7 +121,7 @@ if "response" in data and len(data["response"]) > 0:
     
     if filtrelenmis_mac_sayisi > 0:
         if st.button(f"Analizi Başlat ve Kuponları Oluştur ({filtrelenmis_mac_sayisi} Maç)"):
-            with st.spinner("Yapay zeka binlerce ihtimali tarayıp kuponları oluşturuyor..."):
+            with st.spinner("Yapay zeka binlerce ihtimali tarayıp oranları hesaplıyor..."):
                 
                 tab1, tab2 = st.tabs(["🎯 ÖZEL KOMBİNE KUPONLAR", "📋 Tüm Maçların Detaylı Analizi"])
                 
@@ -123,7 +137,8 @@ if "response" in data and len(data["response"]) > 0:
                         
                         ev_sahibi = mac["teams"]["home"]["name"]
                         deplasman = mac["teams"]["away"]["name"]
-                        saat = mac["fixture"]["date"][11:16]
+                        saat = turkiye_saati_hesapla(mac["fixture"]["date"])
+                        
                         ev_guc, ev_form = takim_istatistikleri_getir(ev_sahibi)
                         dep_guc, dep_form = takim_istatistikleri_getir(deplasman)
                         
@@ -139,31 +154,25 @@ if "response" in data and len(data["response"]) > 0:
                             "oran_korner": tahminler["Korner 8.5 Üst"]
                         })
 
-                # --- 1. SEKME: 4 FARKLI KUPON OLUŞTURMA ---
+                # --- 1. SEKME: 4 FARKLI KUPON ---
                 with tab1:
-                    st.markdown("### 🤖 Yapay Zeka Tarafından Hazırlanan 4 Farklı Konsept")
-                    st.write("Aşağıdaki kuponlar, seçtiğiniz liglerdeki maçlar taranarak matematiksel olasılıklara göre otomatik oluşturulmuştur.")
+                    st.markdown("### 🤖 YZ Tarafından Hesaplanmış Tahminler ve Oranlar")
                     
-                    # 1. BANKO KUPON (Genel güveni en yüksek olanlar)
                     banko_adaylar = sorted(tum_analizler, key=lambda x: x["guven_genel"], reverse=True)
                     kupon_banko = [{"mac": m["mac"], "saat": m["saat"], "tercih": m["tercih_genel"], "guven": m["guven_genel"]} for m in banko_adaylar[:3]]
                     kullanilan_maclar = [m["mac"] for m in kupon_banko]
                     
-                    # 2. GOL ŞENLİĞİ (2.5 Üst ihtimali en yüksek olan, bankoda kullanılmayan maçlar)
                     gol_adaylar = sorted([m for m in tum_analizler if m["mac"] not in kullanilan_maclar], key=lambda x: x["oran_ust"], reverse=True)
                     kupon_gol = [{"mac": m["mac"], "saat": m["saat"], "tercih": "2.5 Üst", "guven": m["oran_ust"]} for m in gol_adaylar[:3]]
                     kullanilan_maclar.extend([m["mac"] for m in kupon_gol])
                     
-                    # 3. SÜRPRİZ / SİSTEM (Beraberlik ihtimali en yüksek olan, boşta kalan maçlar)
                     surpriz_adaylar = sorted([m for m in tum_analizler if m["mac"] not in kullanilan_maclar], key=lambda x: x["oran_ms0"], reverse=True)
                     kupon_surpriz = [{"mac": m["mac"], "saat": m["saat"], "tercih": "MS 0 (Beraberlik)", "guven": m["oran_ms0"]} for m in surpriz_adaylar[:3]]
                     kullanilan_maclar.extend([m["mac"] for m in kupon_surpriz])
                     
-                    # 4. KORNER KUPONU (Korner Üst ihtimali en yüksek olan, boşta kalan maçlar)
                     korner_adaylar = sorted([m for m in tum_analizler if m["mac"] not in kullanilan_maclar], key=lambda x: x["oran_korner"], reverse=True)
                     kupon_korner = [{"mac": m["mac"], "saat": m["saat"], "tercih": "Korner 8.5 Üst", "guven": m["oran_korner"]} for m in korner_adaylar[:3]]
 
-                    # Ekrana 2x2 Grid (Izgara) şeklinde yazdırma
                     col1, col2 = st.columns(2)
                     with col1:
                         kupon_cizdir("GÜNÜN BANKOSU", "🔥", "#FF4B4B", kupon_banko)
@@ -172,7 +181,7 @@ if "response" in data and len(data["response"]) > 0:
                         kupon_cizdir("GOL ŞENLİĞİ", "⚽", "#3B82F6", kupon_gol)
                         kupon_cizdir("KORNER KOMBİNESİ", "🚩", "#10B981", kupon_korner)
 
-                # --- 2. SEKME: TÜM MAÇLARIN DETAYLI ANALİZİ (Eski sayfa yapısı) ---
+                # --- 2. SEKME: TÜM MAÇLARIN DETAYLI ANALİZİ ---
                 with tab2:
                     st.markdown("### 📋 Seçili Liglerin Detaylı Listesi")
                     for lig, maclar in lig_gruplari.items():
@@ -188,11 +197,14 @@ if "response" in data and len(data["response"]) > 0:
                                                 ev_logo = mac["teams"]["home"]["logo"]
                                                 deplasman = mac["teams"]["away"]["name"]
                                                 dep_logo = mac["teams"]["away"]["logo"]
-                                                saat = mac["fixture"]["date"][11:16] 
+                                                
+                                                saat = turkiye_saati_hesapla(mac["fixture"]["date"])
                                                 
                                                 ev_guc, ev_form = takim_istatistikleri_getir(ev_sahibi)
                                                 dep_guc, dep_form = takim_istatistikleri_getir(deplasman)
                                                 tahminler, banko_tercih, banko_oran = tum_tahminleri_hesapla(ev_guc, dep_guc, ev_form, dep_form, yapay_zeka)
+                                                
+                                                hesaplanan_oran = oran_hesapla(banko_oran)
                                                 
                                                 st.markdown(f"<div style='text-align: center; color: gray;'>⏰ {saat}</div>", unsafe_allow_html=True)
                                                 col_logo1, col_isim, col_logo2 = st.columns([1, 3, 1])
@@ -204,7 +216,7 @@ if "response" in data and len(data["response"]) > 0:
                                                     st.image(dep_logo, width=30)
                                                 
                                                 st.markdown("---")
-                                                st.success(f"🔥 **{banko_tercih}** (%{banko_oran:.0f})")
+                                                st.success(f"🔥 **{banko_tercih}**\n\n Güven: %{banko_oran:.0f} | **Oran: {hesaplanan_oran:.2f}**")
     else:
         st.warning("Lütfen analiz yapmak için yukarıdan en az bir lig seçin.")
 else:
