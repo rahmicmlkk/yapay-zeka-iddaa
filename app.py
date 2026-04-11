@@ -7,7 +7,7 @@ from sklearn.ensemble import RandomForestClassifier
 # GÜVENLİK UYARISI: API Anahtarı
 API_KEY = st.secrets["BENIM_SIFREM"]
 
-# YENİ VIP GİRİŞ ŞİFRESİ
+# VIP GİRİŞ ŞİFRESİ
 VIP_PAROLA = "gerze"
 
 st.set_page_config(page_title="VIP YZ Tahmin Pro", layout="wide", page_icon="💎")
@@ -103,7 +103,6 @@ if "response" in data and len(data["response"]) > 0:
         
     secilen_ligler = st.multiselect(f"Taranacak Ligler Havuzu ({secilen_tarih_str}):", options=bugunun_ligleri, default=varsayilan_secimler)
     
-    # Tarih veya lig değişirse analiz hafızasını sıfırla ki eski veriler kalmasın
     if st.session_state.aktif_tarih != secilen_tarih_str or st.session_state.aktif_ligler != secilen_ligler:
         st.session_state.analiz_aktif = False
 
@@ -222,16 +221,51 @@ if "response" in data and len(data["response"]) > 0:
                 st.markdown("### 📊 Şeffaf Geçmiş Analizleri")
                 st.info("Kuponlara tıklayarak hangi maçın tutup hangisinin yattığını görebilirsiniz.")
                 s1, s2, s3, s4 = st.columns(4)
-                s1.metric("Toplam Analiz", "452", "+12"); s2.metric("Başarılı", "361", "80%", delta_color="normal"); s3.metric("Banko Başarısı", "%88", "+2%"); s4.metric("Kuponlar", "14/20", "🔥")
+                s1.metric("Toplam Analiz", "452", "+12")
+                s2.metric("Başarılı", "361", "80%", delta_color="normal")
+                s3.metric("Banko Başarısı", "%88", "+2%")
+                s4.metric("Kuponlar", "14/20", "🔥")
                 
-                gecmis = [{"tarih": (date.today() - timedelta(days=1)).strftime("%d.%m.%Y"), "tip": "🔥 GÜNÜN BANKOSU", "durum": "✅ KAZANDI", "renk": "#10B981", "maclar": [{"isim": "Real Madrid - Barcelona", "tahmin": "1.5 Üst", "skor": "3-1", "sonuc": "✅ TUTTU"}, {"isim": "Arsenal - Chelsea", "tahmin": "2.5 Üst", "skor": "2-2", "sonuc": "✅ TUTTU"}]}, {"tarih": (date.today() - timedelta(days=2)).strftime("%d.%m.%Y"), "tip": "💎 PLATINUM KARMA", "durum": "❌ KAYBETTİ", "renk": "#EF4444", "maclar": [{"isim": "Galatasaray - Fenerbahçe", "tahmin": "KG Var", "skor": "0-0", "sonuc": "❌ YATTI"}, {"isim": "Liverpool - Man City", "tahmin": "2.5 Üst", "skor": "2-1", "sonuc": "✅ TUTTU"}]}]
+                # Hata vermesin diye listeyi geniş yazıyoruz
+                gecmis = [
+                    {
+                        "tarih": (date.today() - timedelta(days=1)).strftime("%d.%m.%Y"), 
+                        "tip": "🔥 GÜNÜN BANKOSU", 
+                        "durum": "✅ KAZANDI", 
+                        "renk": "#10B981", 
+                        "maclar": [
+                            {"isim": "Real Madrid - Barcelona", "tahmin": "1.5 Üst", "skor": "3-1", "sonuc": "✅ TUTTU"}, 
+                            {"isim": "Arsenal - Chelsea", "tahmin": "2.5 Üst", "skor": "2-2", "sonuc": "✅ TUTTU"}
+                        ]
+                    }, 
+                    {
+                        "tarih": (date.today() - timedelta(days=2)).strftime("%d.%m.%Y"), 
+                        "tip": "💎 PLATINUM KARMA", 
+                        "durum": "❌ KAYBETTİ", 
+                        "renk": "#EF4444", 
+                        "maclar": [
+                            {"isim": "Galatasaray - Fenerbahçe", "tahmin": "KG Var", "skor": "0-0", "sonuc": "❌ YATTI"}, 
+                            {"isim": "Liverpool - Man City", "tahmin": "2.5 Üst", "skor": "2-1", "sonuc": "✅ TUTTU"}
+                        ]
+                    }
+                ]
+                
                 for k in gecmis:
                     with st.expander(f"{k['tarih']} | {k['tip']} | {k['durum']}"):
                         st.markdown(f"<h5 style='color: {k['renk']};'>{k['durum']}</h5>", unsafe_allow_html=True)
                         for m in k["maclar"]:
                             cm, ct, cs, cr = st.columns([3, 2, 2, 2])
-                            with cm: st.write(f"**{m['isim']}**")
-                            with ct: st.write(f"Tahmin: {m['tahmin']}")
-                            with cs: st.write(f"Skor: {m['skor']}")
-                            with cr: st.success(m['sonuc']) if "✅" in m['sonuc'] else st.error(m['sonuc'])
-else: st.error("Seçili tarihte maç bulunamadı veya API limiti doldu.")
+                            with cm: 
+                                st.write(f"**{m['isim']}**")
+                            with ct: 
+                                st.write(f"Tahmin: {m['tahmin']}")
+                            with cs: 
+                                st.write(f"Skor: {m['skor']}")
+                            with cr: 
+                                # Hata vermemesi için açık yazım şekli
+                                if "✅" in m['sonuc']:
+                                    st.success(m['sonuc'])
+                                else:
+                                    st.error(m['sonuc'])
+else: 
+    st.error("Seçili tarihte maç bulunamadı veya API limiti doldu.")
