@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from sklearn.ensemble import RandomForestClassifier
 
 # GÜVENLİK UYARISI: API Anahtarı Streamlit Secrets'tan çekiliyor
@@ -39,6 +39,7 @@ st.markdown("""
         padding: 10px 24px;
         box-shadow: 0px 4px 10px rgba(212, 175, 55, 0.4);
         transition: all 0.3s ease;
+        width: 100%;
     }
     div.stButton > button:first-child:hover {
         transform: scale(1.02);
@@ -78,12 +79,11 @@ def turkiye_saati_hesapla(api_tarih_str):
     tr_saat = utc_saat + timedelta(hours=3) 
     return tr_saat.strftime("%H:%M")
 
-# --- API'DEN VERİ ÇEKME ---
+# --- YENİ: ZAMAN MAKİNESİ FONKSİYONU ---
 @st.cache_data(ttl=3600)
-def bugunun_maclarini_getir():
-    bugun = datetime.now().strftime("%Y-%m-%d")
+def maclarini_getir(hedef_tarih):
     url = "https://v3.football.api-sports.io/fixtures"
-    querystring = {"date": bugun}
+    querystring = {"date": hedef_tarih}
     headers = {"x-apisports-key": API_KEY}
     
     response = requests.get(url, headers=headers, params=querystring)
@@ -144,8 +144,16 @@ def kupon_cizdir(baslik, ikon, renk, kupon_listesi, vurgulu=False):
         ortalama_guven = toplam_guven / len(kupon_listesi)
         st.success(f"📈 Kupon Ortalama Başarı İhtimali: **%{ortalama_guven:.0f}**")
 
-# --- ARAYÜZ ---
-data = bugunun_maclarini_getir()
+# --- YENİ: KULLANICI ARAYÜZÜ VE TARİH SEÇİCİ ---
+st.markdown("---")
+col_tarih, col_bosluk = st.columns([1, 2])
+
+with col_tarih:
+    secilen_tarih = st.date_input("📅 Analiz Edilecek Tarihi Seçin:", value=date.today())
+    secilen_tarih_str = secilen_tarih.strftime("%Y-%m-%d")
+
+# Veriyi seçilen tarihe göre çekiyoruz!
+data = maclarini_getir(secilen_tarih_str)
 
 if "response" in data and len(data["response"]) > 0:
     bugunun_ligleri = list(set([mac["league"]["name"] for mac in data["response"]]))
@@ -154,12 +162,12 @@ if "response" in data and len(data["response"]) > 0:
     ana_ligler = ["Süper Lig", "Premier League", "La Liga", "Serie A", "Bundesliga", "Ligue 1", "UEFA Champions League", "UEFA Europa League", "Championship"]
     varsayilan_secimler = [lig for lig in ana_ligler if lig in bugunun_ligleri]
     
-    secilen_ligler = st.multiselect("Hedef Ligleri Seçin:", options=bugunun_ligleri, default=varsayilan_secimler)
+    secilen_ligler = st.multiselect(f"Hedef Ligleri Seçin ({secilen_tarih_str}):", options=bugunun_ligleri, default=varsayilan_secimler)
     filtrelenmis_mac_sayisi = len([m for m in data["response"] if m["league"]["name"] in secilen_ligler])
     
     if filtrelenmis_mac_sayisi > 0:
-        if st.button(f"👑 ELITE ANALİZ MOTORUNU BAŞLAT ({filtrelenmis_mac_sayisi} Maç)"):
-            with st.spinner("VIP Algoritmalar çalışıyor, lütfen bekleyin..."):
+        if st.button(f"👑 {secilen_tarih_str} TARİHLİ ELITE ANALİZİ BAŞLAT ({filtrelenmis_mac_sayisi} Maç)"):
+            with st.spinner(f"{secilen_tarih_str} tarihli maçlar VIP Algoritmalar ile taranıyor..."):
                 
                 lig_gruplari = {}
                 tum_analizler = [] 
@@ -191,13 +199,11 @@ if "response" in data and len(data["response"]) > 0:
                             "oran_iy": tahminler["İY 0.5 Üst"]
                         })
 
-                # YENİ: KATEGORİ (SEKME) SİSTEMİ EKLENDİ
                 st.markdown("---")
                 tab_kombineler, tab_ligler = st.tabs(["🎯 VIP KOMBİNELER", "📋 LİG LİG TÜM MAÇLAR"])
 
-                # --- 1. KATEGORİ: VIP KOMBİNE KUPONLAR ---
                 with tab_kombineler:
-                    st.markdown("### 🤖 Elite Üyeler İçin YZ Seçimi Kombineler")
+                    st.markdown(f"### 🤖 {secilen_tarih_str} Tarihli YZ Seçimi Kombineler")
                     
                     if len(tum_analizler) >= 3:
                         karma_adaylar = []
@@ -236,9 +242,8 @@ if "response" in data and len(data["response"]) > 0:
                     with col3:
                         kupon_cizdir("İLK YARI GOLLÜ", "⏱️", "#F59E0B", kupon_iy)
 
-                # --- 2. KATEGORİ: TÜM LİGLERİN DETAYLI ANALİZİ ---
                 with tab_ligler:
-                    st.markdown("### 📋 Tüm Seçili Liglerin Kapsamlı İstihbaratı")
+                    st.markdown(f"### 📋 {secilen_tarih_str} Tarihli Kapsamlı İstihbarat")
                     
                     for lig, maclar in lig_gruplari.items():
                         with st.expander(f"🏆 {lig} ({len(maclar)} Maç)"):
@@ -280,4 +285,4 @@ if "response" in data and len(data["response"]) > 0:
     else:
         st.warning("Lütfen analiz yapmak için yukarıdan en az bir lig seçin.")
 else:
-    st.error("Bugün oynanacak maç bulunamadı veya API limiti doldu.")
+    st.error("Seçili tarihte oynanacak maç bulunamadı veya API limiti doldu.")
