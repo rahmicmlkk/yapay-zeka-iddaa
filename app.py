@@ -31,17 +31,28 @@ def takim_istatistikleri_getir(takim_adi):
     form = (len(takim_adi) % 6) + 4 
     return guc, form
 
-# --- TÜRKİYE SAATİNE ÇEVİRME ---
 def turkiye_saati_hesapla(api_tarih_str):
     utc_saat = datetime.strptime(api_tarih_str[:16], "%Y-%m-%dT%H:%M")
     tr_saat = utc_saat + timedelta(hours=3) 
     return tr_saat.strftime("%H:%M")
 
-# --- YAPAY ZEKA DEĞER ORANI HESAPLAMA ---
+# --- YENİ: GERÇEKÇİ BAHİS ŞİRKETİ ORAN ALGORİTMASI ---
 def oran_hesapla(guven_yuzdesi):
     if guven_yuzdesi <= 0: return 1.00
-    oran = (100 / guven_yuzdesi) * 0.92
-    return max(1.05, round(oran, 2)) 
+    
+    adil_oran = 100 / guven_yuzdesi
+    
+    # Kademeli Kesinti (Risk yönetimi taklidi)
+    if guven_yuzdesi >= 80:
+        oran = adil_oran * 0.95  # Çok yüksek güven = Düşük kesinti
+    elif guven_yuzdesi >= 65:
+        oran = adil_oran * 0.92  # Favori maçlar
+    elif guven_yuzdesi >= 50:
+        oran = adil_oran * 0.88  # Ortalama ihtimaller
+    else:
+        oran = adil_oran * 0.82  # Sürpriz ihtimaller = Yüksek kesinti
+        
+    return max(1.15, round(oran, 2)) # Hiçbir oran 1.15'ten düşük olamaz
 
 # --- API'DEN VERİ ÇEKME ---
 @st.cache_data(ttl=3600)
@@ -54,11 +65,10 @@ def bugunun_maclarini_getir():
     response = requests.get(url, headers=headers, params=querystring)
     return response.json()
 
-# --- YENİ: TÜM İHTİMALLERİ VE FARKLI MARKETLERİ HESAPLAYAN MOTOR ---
+# --- GÜNCELLENDİ: GERÇEKÇİ İHTİMAL LİMİTLERİ ---
 def tum_tahminleri_hesapla(ev_guc, dep_guc, ev_form, dep_form, model):
     tahminler = {}
     
-    # 1. Maç Sonucu
     if model:
         olasilik = model.predict_proba([[ev_guc, dep_guc, ev_form, dep_form]])[0]
         tahminler["MS 0 (Beraberlik)"] = olasilik[0] * 100
@@ -69,27 +79,24 @@ def tum_tahminleri_hesapla(ev_guc, dep_guc, ev_form, dep_form, model):
 
     toplam_guc_ve_form = ev_guc + dep_guc + ev_form + dep_form
     
-    # 2. Gol Marketleri (2.5 Üst/Alt ve KG)
-    ust_ihtimali = 30 + (toplam_guc_ve_form * 1.5)
-    ust_ihtimali = max(20, min(85, ust_ihtimali)) 
+    # İhtimaller gerçekçi seviyelere çekildi (Örn: Üst ihtimali max %75)
+    ust_ihtimali = 35 + (toplam_guc_ve_form * 1.1)
+    ust_ihtimali = max(30, min(75, ust_ihtimali)) 
     tahminler["2.5 Üst"] = ust_ihtimali
     tahminler["2.5 Alt"] = 100 - ust_ihtimali
     
-    kg_var_ihtimali = 35 + (ev_guc + dep_guc) * 1.2
-    kg_var_ihtimali = max(20, min(80, kg_var_ihtimali))
+    kg_var_ihtimali = 40 + (ev_guc + dep_guc) * 0.9
+    kg_var_ihtimali = max(35, min(75, kg_var_ihtimali))
     tahminler["KG Var"] = kg_var_ihtimali
     
-    # 3. YENİ: İlk Yarı Gol (İY 0.5 Üst)
-    iy_ust_ihtimali = 35 + (ev_form + dep_form) * 1.6
-    iy_ust_ihtimali = max(25, min(82, iy_ust_ihtimali))
+    iy_ust_ihtimali = 30 + (ev_form + dep_form) * 1.3
+    iy_ust_ihtimali = max(28, min(70, iy_ust_ihtimali))
     tahminler["İY 0.5 Üst"] = iy_ust_ihtimali
     
-    # 4. Korner Marketi
-    korner_ust = 40 + (ev_form + dep_form) * 1.8
-    korner_ust = max(25, min(88, korner_ust))
+    korner_ust = 45 + (ev_form + dep_form) * 1.2
+    korner_ust = max(35, min(78, korner_ust))
     tahminler["Korner 8.5 Üst"] = korner_ust
     
-    # En güçlü tahmini bul
     en_iyi_tercih = max(tahminler, key=tahminler.get)
     en_iyi_oran = tahminler[en_iyi_tercih]
     
@@ -166,26 +173,21 @@ if "response" in data and len(data["response"]) > 0:
                             "oran_iy": tahminler["İY 0.5 Üst"]
                         })
 
-                # --- 1. SEKME: GELİŞMİŞ KUPONLAR ---
                 with tab1:
                     st.markdown("### 🤖 YZ Tarafından Farklı Marketlerden Seçilmiş Kombineler")
                     
                     if len(tum_analizler) >= 3:
-                        # --- YENİ: KARMA VIP KUPON (Farklı marketlerin en iyileri) ---
                         karma_adaylar = []
                         kullanilan_karma = []
                         
-                        # 1. En iyi MS tahmini
                         best_ms = sorted(tum_analizler, key=lambda x: x["guven_genel"], reverse=True)[0]
                         karma_adaylar.append({"mac": best_ms["mac"], "saat": best_ms["saat"], "tercih": best_ms["tercih_genel"], "guven": best_ms["guven_genel"]})
                         kullanilan_karma.append(best_ms["mac"])
                         
-                        # 2. En iyi 2.5 Üst tahmini
                         best_gol = sorted([m for m in tum_analizler if m["mac"] not in kullanilan_karma], key=lambda x: x["oran_ust"], reverse=True)[0]
                         karma_adaylar.append({"mac": best_gol["mac"], "saat": best_gol["saat"], "tercih": "2.5 Üst", "guven": best_gol["oran_ust"]})
                         kullanilan_karma.append(best_gol["mac"])
                         
-                        # 3. En iyi Korner tahmini
                         best_korner = sorted([m for m in tum_analizler if m["mac"] not in kullanilan_karma], key=lambda x: x["oran_korner"], reverse=True)[0]
                         karma_adaylar.append({"mac": best_korner["mac"], "saat": best_korner["saat"], "tercih": "Korner 8.5 Üst", "guven": best_korner["oran_korner"]})
                         kullanilan_karma.append(best_korner["mac"])
@@ -194,7 +196,6 @@ if "response" in data and len(data["response"]) > 0:
                         kupon_cizdir("KARMA VIP KUPON (Farklı Marketler)", "🌟", "#A855F7", karma_adaylar, vurgulu=True)
                         st.markdown("---")
 
-                    # Diğer spesifik kuponlar
                     banko_adaylar = sorted([m for m in tum_analizler if m["mac"] not in kullanilan_karma], key=lambda x: x["guven_genel"], reverse=True)
                     kupon_banko = [{"mac": m["mac"], "saat": m["saat"], "tercih": m["tercih_genel"], "guven": m["guven_genel"]} for m in banko_adaylar[:3]]
                     kullanilan_maclar = kullanilan_karma + [m["mac"] for m in kupon_banko]
@@ -214,7 +215,6 @@ if "response" in data and len(data["response"]) > 0:
                     with col3:
                         kupon_cizdir("İLK YARI GOLLÜ", "⏱️", "#F59E0B", kupon_iy)
 
-                # --- 2. SEKME: TÜM MAÇLARIN DETAYLI ANALİZİ ---
                 with tab2:
                     st.markdown("### 📋 Seçili Liglerin Tüm Tahmin Marketleri")
                     for lig, maclar in lig_gruplari.items():
@@ -251,7 +251,6 @@ if "response" in data and len(data["response"]) > 0:
                                                 st.markdown("---")
                                                 st.success(f"🔥 **{banko_tercih}**\n\n Güven: %{banko_oran:.0f} | **Oran: {hesaplanan_oran:.2f}**")
                                                 
-                                                # YENİ: Diğer ihtimalleri daha detaylı göster
                                                 with st.expander("📊 Tüm Market Analizleri"):
                                                     st.caption(f"İY 0.5 Üst: %{tahminler['İY 0.5 Üst']:.0f} (Oran: {oran_hesapla(tahminler['İY 0.5 Üst']):.2f})")
                                                     st.caption(f"2.5 Üst: %{tahminler['2.5 Üst']:.0f} (Oran: {oran_hesapla(tahminler['2.5 Üst']):.2f})")
