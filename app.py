@@ -8,7 +8,7 @@ from sklearn.ensemble import RandomForestClassifier
 API_KEY = st.secrets["BENIM_SIFREM"]
 
 st.set_page_config(page_title="YZ İddaa Tahmin Pro", layout="wide", page_icon="⚽")
-st.title("⚽ Günün Maçları ve 4 Farklı YZ Kombinesi")
+st.title("⚽ Günün Maçları ve Premium YZ Kombineleri")
 
 # --- YAPAY ZEKA MODELİ ---
 @st.cache_resource 
@@ -54,10 +54,11 @@ def bugunun_maclarini_getir():
     response = requests.get(url, headers=headers, params=querystring)
     return response.json()
 
-# --- TÜM İHTİMALLERİ HESAPLAYAN MOTOR ---
+# --- YENİ: TÜM İHTİMALLERİ VE FARKLI MARKETLERİ HESAPLAYAN MOTOR ---
 def tum_tahminleri_hesapla(ev_guc, dep_guc, ev_form, dep_form, model):
     tahminler = {}
     
+    # 1. Maç Sonucu
     if model:
         olasilik = model.predict_proba([[ev_guc, dep_guc, ev_form, dep_form]])[0]
         tahminler["MS 0 (Beraberlik)"] = olasilik[0] * 100
@@ -68,6 +69,7 @@ def tum_tahminleri_hesapla(ev_guc, dep_guc, ev_form, dep_form, model):
 
     toplam_guc_ve_form = ev_guc + dep_guc + ev_form + dep_form
     
+    # 2. Gol Marketleri (2.5 Üst/Alt ve KG)
     ust_ihtimali = 30 + (toplam_guc_ve_form * 1.5)
     ust_ihtimali = max(20, min(85, ust_ihtimali)) 
     tahminler["2.5 Üst"] = ust_ihtimali
@@ -77,17 +79,26 @@ def tum_tahminleri_hesapla(ev_guc, dep_guc, ev_form, dep_form, model):
     kg_var_ihtimali = max(20, min(80, kg_var_ihtimali))
     tahminler["KG Var"] = kg_var_ihtimali
     
+    # 3. YENİ: İlk Yarı Gol (İY 0.5 Üst)
+    iy_ust_ihtimali = 35 + (ev_form + dep_form) * 1.6
+    iy_ust_ihtimali = max(25, min(82, iy_ust_ihtimali))
+    tahminler["İY 0.5 Üst"] = iy_ust_ihtimali
+    
+    # 4. Korner Marketi
     korner_ust = 40 + (ev_form + dep_form) * 1.8
     korner_ust = max(25, min(88, korner_ust))
     tahminler["Korner 8.5 Üst"] = korner_ust
     
+    # En güçlü tahmini bul
     en_iyi_tercih = max(tahminler, key=tahminler.get)
     en_iyi_oran = tahminler[en_iyi_tercih]
     
     return tahminler, en_iyi_tercih, en_iyi_oran
 
 # --- KUPON ÇİZDİRME VE TOPLAM ORAN ---
-def kupon_cizdir(baslik, ikon, renk, kupon_listesi):
+def kupon_cizdir(baslik, ikon, renk, kupon_listesi, vurgulu=False):
+    stil = f"border: 2px solid {renk}; border-radius: 10px; padding: 15px; background-color: {'#1E1E1E' if vurgulu else 'transparent'};" if vurgulu else ""
+    
     with st.container(border=True):
         st.markdown(f"<h4 style='text-align: center; color: {renk};'>{ikon} {baslik} {ikon}</h4>", unsafe_allow_html=True)
         st.markdown("---")
@@ -121,9 +132,9 @@ if "response" in data and len(data["response"]) > 0:
     
     if filtrelenmis_mac_sayisi > 0:
         if st.button(f"Analizi Başlat ve Kuponları Oluştur ({filtrelenmis_mac_sayisi} Maç)"):
-            with st.spinner("Yapay zeka binlerce ihtimali tarayıp oranları hesaplıyor..."):
+            with st.spinner("Tüm marketler (Gol, Korner, İY, MS) taranıyor..."):
                 
-                tab1, tab2 = st.tabs(["🎯 ÖZEL KOMBİNE KUPONLAR", "📋 Tüm Maçların Detaylı Analizi"])
+                tab1, tab2 = st.tabs(["🎯 PREMIUM KOMBİNE KUPONLAR", "📋 Tüm Maçların Detaylı Analizi"])
                 
                 lig_gruplari = {}
                 tum_analizler = [] 
@@ -151,39 +162,61 @@ if "response" in data and len(data["response"]) > 0:
                             "guven_genel": banko_oran,
                             "oran_ust": tahminler["2.5 Üst"],
                             "oran_ms0": tahminler["MS 0 (Beraberlik)"],
-                            "oran_korner": tahminler["Korner 8.5 Üst"]
+                            "oran_korner": tahminler["Korner 8.5 Üst"],
+                            "oran_iy": tahminler["İY 0.5 Üst"]
                         })
 
-                # --- 1. SEKME: 4 FARKLI KUPON ---
+                # --- 1. SEKME: GELİŞMİŞ KUPONLAR ---
                 with tab1:
-                    st.markdown("### 🤖 YZ Tarafından Hesaplanmış Tahminler ve Oranlar")
+                    st.markdown("### 🤖 YZ Tarafından Farklı Marketlerden Seçilmiş Kombineler")
                     
-                    banko_adaylar = sorted(tum_analizler, key=lambda x: x["guven_genel"], reverse=True)
+                    if len(tum_analizler) >= 3:
+                        # --- YENİ: KARMA VIP KUPON (Farklı marketlerin en iyileri) ---
+                        karma_adaylar = []
+                        kullanilan_karma = []
+                        
+                        # 1. En iyi MS tahmini
+                        best_ms = sorted(tum_analizler, key=lambda x: x["guven_genel"], reverse=True)[0]
+                        karma_adaylar.append({"mac": best_ms["mac"], "saat": best_ms["saat"], "tercih": best_ms["tercih_genel"], "guven": best_ms["guven_genel"]})
+                        kullanilan_karma.append(best_ms["mac"])
+                        
+                        # 2. En iyi 2.5 Üst tahmini
+                        best_gol = sorted([m for m in tum_analizler if m["mac"] not in kullanilan_karma], key=lambda x: x["oran_ust"], reverse=True)[0]
+                        karma_adaylar.append({"mac": best_gol["mac"], "saat": best_gol["saat"], "tercih": "2.5 Üst", "guven": best_gol["oran_ust"]})
+                        kullanilan_karma.append(best_gol["mac"])
+                        
+                        # 3. En iyi Korner tahmini
+                        best_korner = sorted([m for m in tum_analizler if m["mac"] not in kullanilan_karma], key=lambda x: x["oran_korner"], reverse=True)[0]
+                        karma_adaylar.append({"mac": best_korner["mac"], "saat": best_korner["saat"], "tercih": "Korner 8.5 Üst", "guven": best_korner["oran_korner"]})
+                        kullanilan_karma.append(best_korner["mac"])
+                        
+                        st.markdown("---")
+                        kupon_cizdir("KARMA VIP KUPON (Farklı Marketler)", "🌟", "#A855F7", karma_adaylar, vurgulu=True)
+                        st.markdown("---")
+
+                    # Diğer spesifik kuponlar
+                    banko_adaylar = sorted([m for m in tum_analizler if m["mac"] not in kullanilan_karma], key=lambda x: x["guven_genel"], reverse=True)
                     kupon_banko = [{"mac": m["mac"], "saat": m["saat"], "tercih": m["tercih_genel"], "guven": m["guven_genel"]} for m in banko_adaylar[:3]]
-                    kullanilan_maclar = [m["mac"] for m in kupon_banko]
+                    kullanilan_maclar = kullanilan_karma + [m["mac"] for m in kupon_banko]
                     
                     gol_adaylar = sorted([m for m in tum_analizler if m["mac"] not in kullanilan_maclar], key=lambda x: x["oran_ust"], reverse=True)
                     kupon_gol = [{"mac": m["mac"], "saat": m["saat"], "tercih": "2.5 Üst", "guven": m["oran_ust"]} for m in gol_adaylar[:3]]
                     kullanilan_maclar.extend([m["mac"] for m in kupon_gol])
                     
-                    surpriz_adaylar = sorted([m for m in tum_analizler if m["mac"] not in kullanilan_maclar], key=lambda x: x["oran_ms0"], reverse=True)
-                    kupon_surpriz = [{"mac": m["mac"], "saat": m["saat"], "tercih": "MS 0 (Beraberlik)", "guven": m["oran_ms0"]} for m in surpriz_adaylar[:3]]
-                    kullanilan_maclar.extend([m["mac"] for m in kupon_surpriz])
-                    
-                    korner_adaylar = sorted([m for m in tum_analizler if m["mac"] not in kullanilan_maclar], key=lambda x: x["oran_korner"], reverse=True)
-                    kupon_korner = [{"mac": m["mac"], "saat": m["saat"], "tercih": "Korner 8.5 Üst", "guven": m["oran_korner"]} for m in korner_adaylar[:3]]
+                    iy_adaylar = sorted([m for m in tum_analizler if m["mac"] not in kullanilan_maclar], key=lambda x: x["oran_iy"], reverse=True)
+                    kupon_iy = [{"mac": m["mac"], "saat": m["saat"], "tercih": "İlk Yarı 0.5 Üst", "guven": m["oran_iy"]} for m in iy_adaylar[:3]]
 
-                    col1, col2 = st.columns(2)
+                    col1, col2, col3 = st.columns(3)
                     with col1:
                         kupon_cizdir("GÜNÜN BANKOSU", "🔥", "#FF4B4B", kupon_banko)
-                        kupon_cizdir("SÜRPRİZ / SİSTEM", "🎁", "#FACC15", kupon_surpriz)
                     with col2:
                         kupon_cizdir("GOL ŞENLİĞİ", "⚽", "#3B82F6", kupon_gol)
-                        kupon_cizdir("KORNER KOMBİNESİ", "🚩", "#10B981", kupon_korner)
+                    with col3:
+                        kupon_cizdir("İLK YARI GOLLÜ", "⏱️", "#F59E0B", kupon_iy)
 
                 # --- 2. SEKME: TÜM MAÇLARIN DETAYLI ANALİZİ ---
                 with tab2:
-                    st.markdown("### 📋 Seçili Liglerin Detaylı Listesi")
+                    st.markdown("### 📋 Seçili Liglerin Tüm Tahmin Marketleri")
                     for lig, maclar in lig_gruplari.items():
                         with st.expander(f"🏆 {lig} ({len(maclar)} Maç)"):
                             for i in range(0, len(maclar), 3):
@@ -217,6 +250,13 @@ if "response" in data and len(data["response"]) > 0:
                                                 
                                                 st.markdown("---")
                                                 st.success(f"🔥 **{banko_tercih}**\n\n Güven: %{banko_oran:.0f} | **Oran: {hesaplanan_oran:.2f}**")
+                                                
+                                                # YENİ: Diğer ihtimalleri daha detaylı göster
+                                                with st.expander("📊 Tüm Market Analizleri"):
+                                                    st.caption(f"İY 0.5 Üst: %{tahminler['İY 0.5 Üst']:.0f} (Oran: {oran_hesapla(tahminler['İY 0.5 Üst']):.2f})")
+                                                    st.caption(f"2.5 Üst: %{tahminler['2.5 Üst']:.0f} (Oran: {oran_hesapla(tahminler['2.5 Üst']):.2f})")
+                                                    st.caption(f"KG Var: %{tahminler['KG Var']:.0f} (Oran: {oran_hesapla(tahminler['KG Var']):.2f})")
+                                                    st.caption(f"Korner 8.5 Üst: %{tahminler['Korner 8.5 Üst']:.0f} (Oran: {oran_hesapla(tahminler['Korner 8.5 Üst']):.2f})")
     else:
         st.warning("Lütfen analiz yapmak için yukarıdan en az bir lig seçin.")
 else:
