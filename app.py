@@ -4,8 +4,8 @@ import pandas as pd
 from datetime import datetime
 from sklearn.ensemble import RandomForestClassifier
 
-# GÜVENLİK UYARISI: API Anahtarını buraya yaz 
-API_KEY = "9aaaf3814b469af593c5067d1fa71337"
+# Yeni (Güvenli) Hal:
+API_KEY = st.secrets["BENIM_SIFREM"]
 
 st.set_page_config(page_title="YZ İddaa Tahmin Pro", layout="wide", page_icon="⚽")
 st.title("⚽ Günün Maçları ve Gelişmiş YZ Analizi")
