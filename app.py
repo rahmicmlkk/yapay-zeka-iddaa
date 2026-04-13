@@ -48,29 +48,44 @@ yapay_zeka = yapay_zeka_modeli_olustur()
 def takim_istatistikleri_getir(takim_adi): return (len(takim_adi) % 5) + 5, (len(takim_adi) % 6) + 4 
 def turkiye_saati_hesapla(tarih): return (datetime.strptime(tarih[:16], "%Y-%m-%dT%H:%M") + timedelta(hours=3)).strftime("%H:%M")
 
+# --- RAPIDAPI BAĞLANTISI ---
 @st.cache_data(ttl=3600)
 def maclarini_getir(hedef_tarih):
-    return requests.get("https://v3.football.api-sports.io/fixtures", headers={"x-apisports-key": API_KEY}, params={"date": hedef_tarih}).json()
+    url = "https://api-football-v1.p.rapidapi.com/v3/fixtures"
+    headers = {
+        "x-rapidapi-key": API_KEY,
+        "x-rapidapi-host": "api-football-v1.p.rapidapi.com"
+    }
+    querystring = {"date": hedef_tarih}
+    response = requests.get(url, headers=headers, params=querystring)
+    return response.json()
 
 def tum_tahminleri_hesapla(ev_guc, dep_guc, ev_form, dep_form, model):
     tahminler = {}
     if model:
         olasilik = model.predict_proba([[ev_guc, dep_guc, ev_form, dep_form]])[0]
-        tahminler["MS 0 (Beraberlik)"], tahminler["MS 1 (Ev Sahibi)"], tahminler["MS 2 (Deplasman)"] = olasilik[0]*100, olasilik[1]*100, olasilik[2]*100
+        tahminler["MS 0 (Beraberlik)"] = olasilik[0]*100
+        tahminler["MS 1 (Ev Sahibi)"] = olasilik[1]*100
+        tahminler["MS 2 (Deplasman)"] = olasilik[2]*100
     
     t_guc = ev_guc + dep_guc + ev_form + dep_form
     ust_25 = max(30, min(75, 35 + (t_guc * 1.1)))
-    tahminler["2.5 Üst"], tahminler["2.5 Alt"] = ust_25, 100 - ust_25
-    tahminler["1.5 Üst"], tahminler["3.5 Alt"] = min(92, ust_25 + 15), min(90, (100 - ust_25) + 20)
+    tahminler["2.5 Üst"] = ust_25
+    tahminler["2.5 Alt"] = 100 - ust_25
+    tahminler["1.5 Üst"] = min(92, ust_25 + 15)
+    tahminler["3.5 Alt"] = min(90, (100 - ust_25) + 20)
     
     iy_ust = max(28, min(70, 30 + (ev_form + dep_form) * 1.3))
-    tahminler["İY 0.5 Üst"], tahminler["İY 1.5 Alt"] = iy_ust, min(88, (100 - iy_ust) + 10)
+    tahminler["İY 0.5 Üst"] = iy_ust
+    tahminler["İY 1.5 Alt"] = min(88, (100 - iy_ust) + 10)
     
     kg_var = max(35, min(75, 40 + (ev_guc + dep_guc) * 0.9))
-    tahminler["KG Var"], tahminler["KG Yok"] = kg_var, 100 - kg_var
+    tahminler["KG Var"] = kg_var
+    tahminler["KG Yok"] = 100 - kg_var
     
     korner_85 = max(35, min(78, 45 + (ev_form + dep_form) * 1.2))
-    tahminler["Korner 8.5 Üst"], tahminler["Korner 9.5 Üst"] = korner_85, max(20, korner_85 - 12)
+    tahminler["Korner 8.5 Üst"] = korner_85
+    tahminler["Korner 9.5 Üst"] = max(20, korner_85 - 12)
     
     en_gercekci = max(tahminler, key=tahminler.get)
     return tahminler, en_gercekci, tahminler[en_gercekci]
@@ -96,7 +111,14 @@ with col1:
 
 data = maclarini_getir(secilen_tarih_str)
 
-if "response" in data and len(data["response"]) > 0:
+# YENİ: HATA AYIKLAMA (DEBUGGING) SİSTEMİ
+if "message" in data:
+    st.error(f"🚫 RapidAPI Sunucu Hatası: {data['message']}")
+    st.info("💡 Çözüm İpucu: RapidAPI sitesine girip 'API-Football' uygulamasının 'Pricing' (Fiyatlandırma) sekmesinden ücretsiz pakete 'Subscribe' (Abone Ol) demeniz gerekiyor olabilir.")
+elif "errors" in data and len(data["errors"]) > 0:
+    st.error(f"⚠️ API-Football Hatası: {data['errors']}")
+    st.info("💡 Çözüm İpucu: API-Football parametrelerinde veya günlük limitinizde bir sorun var.")
+elif "response" in data and len(data["response"]) > 0:
     bugunun_ligleri = sorted(list(set([mac["league"]["name"] for mac in data["response"]])))
     genis_havuz = ["Süper Lig", "Premier League", "La Liga", "Serie A", "Bundesliga", "Ligue 1", "UEFA Champions League", "UEFA Europa League", "Championship", "Eredivisie", "Primeira Liga", "Brasileiro Série A", "MLS", "Saudi Pro League", "1. Lig"]
     varsayilan_secimler = [l for l in genis_havuz if l in bugunun_ligleri] or bugunun_ligleri[:10]
@@ -226,8 +248,7 @@ if "response" in data and len(data["response"]) > 0:
                 s3.metric("Banko Başarısı", "%88", "+2%")
                 s4.metric("Kuponlar", "14/20", "🔥")
                 
-                # Hata vermesin diye listeyi geniş yazıyoruz
-                gecmis = [
+                gecmis_veriler = [
                     {
                         "tarih": (date.today() - timedelta(days=1)).strftime("%d.%m.%Y"), 
                         "tip": "🔥 GÜNÜN BANKOSU", 
@@ -250,7 +271,7 @@ if "response" in data and len(data["response"]) > 0:
                     }
                 ]
                 
-                for k in gecmis:
+                for k in gecmis_veriler:
                     with st.expander(f"{k['tarih']} | {k['tip']} | {k['durum']}"):
                         st.markdown(f"<h5 style='color: {k['renk']};'>{k['durum']}</h5>", unsafe_allow_html=True)
                         for m in k["maclar"]:
@@ -262,10 +283,9 @@ if "response" in data and len(data["response"]) > 0:
                             with cs: 
                                 st.write(f"Skor: {m['skor']}")
                             with cr: 
-                                # Hata vermemesi için açık yazım şekli
                                 if "✅" in m['sonuc']:
                                     st.success(m['sonuc'])
                                 else:
                                     st.error(m['sonuc'])
-else: 
-    st.error("Seçili tarihte maç bulunamadı veya API limiti doldu.")
+else:
+    st.info("Bu tarihte henüz analiz edilebilir maç verisi yok veya takvim güncelleniyor.")
