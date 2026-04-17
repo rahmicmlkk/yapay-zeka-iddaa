@@ -8,7 +8,7 @@ import time
 from datetime import datetime, timedelta, date
 from sklearn.ensemble import RandomForestClassifier
 
-# --- SENİN API ŞİFREN ---
+# --- SENİN API ŞİFREN (PATLARSA YEDEK SİSTEM DEVREYE GİRER) ---
 API_KEY = "18961e393de1214e4595758bbebe08aa"
 
 st.set_page_config(page_title="Predict Pro | Big Data Terminal", layout="wide", initial_sidebar_state="collapsed")
@@ -26,8 +26,8 @@ st.markdown("""
     div.stButton > button:hover { background: #0284c7; color: #ffffff !important; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3); }
     hr { margin: 1.5em 0; border: none; height: 1px; background: rgba(0,0,0,0.1); }
     
-    .wa-button { display: block; text-align: center; background-color: #25D366; color: #ffffff !important; padding: 10px; border-radius: 8px; text-decoration: none; font-weight: 900; letter-spacing: 1px; margin-top: 15px; transition: all 0.3s; }
-    .wa-button:hover { background-color: #16a34a; transform: scale(1.02); }
+    .wa-button { display: block; text-align: center; background-color: #25D366; color: #ffffff !important; padding: 10px; border-radius: 8px; text-decoration: none; font-weight: 900; letter-spacing: 1px; margin-top: 15px; transition: all 0.3s; box-shadow: 0 4px 6px rgba(37, 211, 102, 0.3); }
+    .wa-button:hover { background-color: #16a34a; transform: scale(1.02); box-shadow: 0 6px 12px rgba(37, 211, 102, 0.4); }
     
     .value-badge { background-color: #f59e0b; color: #ffffff; padding: 3px 10px; border-radius: 12px; font-size: 0.75em; font-weight: 900; margin-left: 5px; }
     .drop-badge { background-color: #ef4444; color: #ffffff; padding: 3px 10px; border-radius: 12px; font-size: 0.75em; font-weight: 900; animation: pulse 2s infinite; display: inline-block; margin-bottom:5px;}
@@ -77,8 +77,28 @@ def maclarini_getir(hedef_tarih):
     url = "https://v3.football.api-sports.io/fixtures"
     headers = {"x-apisports-key": API_KEY}
     querystring = {"date": hedef_tarih}
-    response = requests.get(url, headers=headers, params=querystring)
-    return response.json()
+    
+    try:
+        response = requests.get(url, headers=headers, params=querystring)
+        data = response.json()
+        
+        # GÖLGE PROTOKOLÜ (API Çökerse Şov Devam Eder)
+        if "errors" in data and data["errors"]:
+            st.warning("⚠️ [GÖLGE PROTOKOLÜ AKTİF]: Ana API bağlantısı gizlendi. Çevrimdışı Simülasyon Verileri (Şov Modu) kullanılıyor.")
+            return {
+                "response": [
+                    {"fixture": {"date": f"{hedef_tarih}T19:00:00+00:00"}, "league": {"name": "UEFA Champions League"}, "teams": {"home": {"name": "Real Madrid"}, "away": {"name": "Manchester City"}}},
+                    {"fixture": {"date": f"{hedef_tarih}T20:00:00+00:00"}, "league": {"name": "UEFA Champions League"}, "teams": {"home": {"name": "Bayern Munich"}, "away": {"name": "Arsenal"}}},
+                    {"fixture": {"date": f"{hedef_tarih}T17:00:00+00:00"}, "league": {"name": "Süper Lig"}, "teams": {"home": {"name": "Galatasaray"}, "away": {"name": "Fenerbahçe"}}},
+                    {"fixture": {"date": f"{hedef_tarih}T14:30:00+00:00"}, "league": {"name": "Süper Lig"}, "teams": {"home": {"name": "Beşiktaş"}, "away": {"name": "Trabzonspor"}}},
+                    {"fixture": {"date": f"{hedef_tarih}T16:00:00+00:00"}, "league": {"name": "Premier League"}, "teams": {"home": {"name": "Liverpool"}, "away": {"name": "Chelsea"}}},
+                    {"fixture": {"date": f"{hedef_tarih}T15:00:00+00:00"}, "league": {"name": "Serie A"}, "teams": {"home": {"name": "Juventus"}, "away": {"name": "Inter"}}},
+                    {"fixture": {"date": f"{hedef_tarih}T18:00:00+00:00"}, "league": {"name": "La Liga"}, "teams": {"home": {"name": "Barcelona"}, "away": {"name": "Atletico Madrid"}}}
+                ]
+            }
+        return data
+    except:
+        return {"errors": "Bağlantı hatası"}
 
 def gizli_istihbarat_olustur(oran, guven, mac_ismi):
     sayi = int(hashlib.md5(mac_ismi.encode()).hexdigest(), 16)
@@ -159,6 +179,7 @@ def tum_tahminleri_hesapla(ev_guc, dep_guc, ev_form, dep_form, xg_ev, xg_dep, ek
     en_gercekci = max(tahminler, key=tahminler.get)
     return tahminler, en_gercekci, tahminler[en_gercekci]
 
+# --- YENİ EFSANEVİ WHATSAPP BUTONU FONKSİYONU ---
 def kupon_cizdir(baslik, aciklama, renk, kupon_listesi):
     with st.container(border=True):
         st.markdown(f"<div class='kombine-title' style='color: {renk};'>{baslik.upper()}</div>", unsafe_allow_html=True)
@@ -169,7 +190,11 @@ def kupon_cizdir(baslik, aciklama, renk, kupon_listesi):
             return
             
         toplam_oran = 1.0
-        wa_text = f"📊 *PREDICT PRO KOMBİNE - {baslik}*\n\n"
+        
+        # WHATSAPP ŞOV METNİ BURADA HAZIRLANIYOR
+        wa_text = f"🤖 *Alın bu da Yapay Zekanın bugünkü Risk Dağılımı:*\n"
+        wa_text += f"💼 *{baslik.upper()}*\n"
+        wa_text += "------------------------\n"
         
         for k_mac in kupon_listesi:
             toplam_oran *= k_mac['oran']
@@ -180,11 +205,15 @@ def kupon_cizdir(baslik, aciklama, renk, kupon_listesi):
             st.markdown(f"<div style='font-size: 0.85em; color: #64748b; margin-bottom: 2px; font-weight: 800;'>{k_mac['saat']}</div>", unsafe_allow_html=True)
             st.markdown(f"<div class='team-names'>{k_mac['mac']}</div>", unsafe_allow_html=True)
             st.markdown(f"<div style='margin-bottom: 15px;'><span style='color: {renk}; font-weight: 900;'>{k_mac['tercih']}</span> <span style='font-size: 0.9em; font-weight:800; color:#334155;'>| @ {k_mac['oran']:.2f}</span> {value_badge}</div>", unsafe_allow_html=True)
-            wa_text += f"▪️ {k_mac['mac']}\n└ {k_mac['tercih']} (@{k_mac['oran']:.2f})\n\n"
+            
+            # WhatsApp'a eklenecek maç bilgisi
+            wa_text += f"⚽ {k_mac['mac']}\n🎯 {k_mac['tercih']} (Oran: {k_mac['oran']:.2f})\n\n"
             
         st.markdown(f"<div style='text-align: right; font-size: 1.2em; margin-top: 10px; font-weight: 900; color:#0f172a;'>Olası Çarpan: {toplam_oran:.2f}x</div>", unsafe_allow_html=True)
-        wa_text += f"📈 *Toplam Çarpan: {toplam_oran:.2f}x*"
-        st.markdown(f"<a href='https://api.whatsapp.com/send?text={urllib.parse.quote(wa_text)}' target='_blank' class='wa-button'>WhatsApp ile Gönder</a>", unsafe_allow_html=True)
+        wa_text += f"📈 *Olası Çarpan: {toplam_oran:.2f}x*\n\n"
+        wa_text += f"_(Predict Pro AI Tarafından Hesaplanmıştır)_"
+        
+        st.markdown(f"<a href='https://api.whatsapp.com/send?text={urllib.parse.quote(wa_text)}' target='_blank' class='wa-button'>📲 WhatsApp ile Arkadaşlara Gönder</a>", unsafe_allow_html=True)
 
 # --- ARAYÜZ ---
 col_sol, col_sag = st.columns([1, 2])
@@ -194,9 +223,7 @@ with col_sol:
 
 data = maclarini_getir(secilen_tarih_str)
 
-if "errors" in data and data["errors"]:
-    st.error(f"API Sinyal Hatası: {data['errors']}")
-elif "response" in data and len(data["response"]) > 0:
+if "response" in data and len(data["response"]) > 0:
     bugunun_ligleri = sorted(list(set([mac["league"]["name"] for mac in data["response"]])))
     genis_havuz = ["Süper Lig", "1. Lig", "Premier League", "La Liga", "Serie A", "Bundesliga", "Ligue 1", "UEFA Champions League", "UEFA Europa League", "Eredivisie", "MLS", "Saudi Pro League"]
     varsayilan_secimler = [l for l in genis_havuz if l in bugunun_ligleri] or bugunun_ligleri[:10]
@@ -211,7 +238,7 @@ elif "response" in data and len(data["response"]) > 0:
         
     if st.session_state.analiz_aktif:
         with st.spinner("Dark Web Forumları, xG Motoru ve Kombinasyonlar Hesaplanıyor..."):
-            time.sleep(2) 
+            time.sleep(1) 
             tum_analizler = []
             lig_gruplari = {}
             for mac in data["response"]:
@@ -274,34 +301,25 @@ elif "response" in data and len(data["response"]) > 0:
                             kasa *= 2
                         st.dataframe(pd.DataFrame(gunler), hide_index=True, use_container_width=True, height=250)
 
-            # --- YENİ EKLENEN SEKMELER: ÖZEL KOMBİNELER ---
             with tab_kombineler:
                 st.markdown("<br>", unsafe_allow_html=True)
                 st.info("💡 Yapay zeka bültendeki maçları tarayarak farklı risk ve kazanç stratejilerine göre 3 ayrı yatırım portföyü (Kombine) oluşturdu.")
                 
                 c1, c2, c3 = st.columns(3)
-                
-                # 1. HEDGE FONU (Düşük Risk, Ana Kasa)
                 with c1:
                     bankolar = sorted(tum_analizler, key=lambda x: x["guven"], reverse=True)[:3]
-                    kupon_cizdir("🛡️ HEDGE FONU (ANA KASA)", "Risk barındırmayan, 1.5 Üst veya Çifte Şans gibi matematiksel olarak en garanti 3 eşleşme.", "#10b981", bankolar)
-                
-                # 2. LİKİDİTE GOL AĞI (xG Yüksek Olanlar)
+                    kupon_cizdir("🛡️ HEDGE FONU (ANA KASA)", "Risk barındırmayan, matematiksel olarak en garanti eşleşmeler.", "#10b981", bankolar)
                 with c2:
                     kullanilan_maclar = [m["mac"] for m in bankolar]
                     gollar = sorted([m for m in tum_analizler if m["mac"] not in kullanilan_maclar], key=lambda x: x["oran_ust"], reverse=True)[:3]
                     gollar_list = [{"mac": m["mac"], "saat": m["saat"], "tercih": "2.5 Gol Üstü", "guven": m["oran_ust"], "oran": oran_ve_value_hesapla(m["oran_ust"], m["mac"])[0], "is_value": oran_ve_value_hesapla(m["oran_ust"], m["mac"])[1], "is_dropping": False} for m in gollar]
-                    kupon_cizdir("⚽ LİKİDİTE GOL AĞI", "xG (Gol Beklentisi) formülüne göre savunma zaafiyeti yüksek, bol gollü geçecek 3 karşılaşma.", "#3b82f6", gollar_list)
-                    
-                # 3. YÜKSEK RİSK / ALPHA FONU (Value + Dropping)
+                    kupon_cizdir("⚽ LİKİDİTE GOL AĞI", "xG formülüne göre savunma zaafiyeti yüksek, bol gollü geçecek maçlar.", "#3b82f6", gollar_list)
                 with c3:
                     kullanilan_maclar.extend([m["mac"] for m in gollar])
-                    # Sadece Value olanları, oran düşenleri veya sürpriz Beraberlikleri çek
                     yuksek_risk = sorted([m for m in tum_analizler if m["mac"] not in kullanilan_maclar and (m["is_value"] or m["is_dropping"] or m["oran"] > 1.80)], key=lambda x: x["oran"], reverse=True)[:3]
-                    # Eğer yeterli yüksek risk yoksa, en zor maçları koy
                     if len(yuksek_risk) < 3:
                         yuksek_risk = sorted([m for m in tum_analizler if m["mac"] not in kullanilan_maclar], key=lambda x: x["guven"])[:3]
-                    kupon_cizdir("🌋 ALPHA FONU (YÜKSEK GETİRİ)", "Küresel para akışına ve şüpheli değerlere (Value) dayalı, riski yüksek ama getirisi devasa 3'lü kombinasyon.", "#ef4444", yuksek_risk)
+                    kupon_cizdir("🌋 ALPHA FONU (YÜKSEK GETİRİ)", "Küresel para akışına ve şüpheli değerlere (Value) dayalı yüksek oranlı fon.", "#ef4444", yuksek_risk)
 
             with tab_ligler:
                 st.markdown("<br>", unsafe_allow_html=True)
@@ -315,7 +333,7 @@ elif "response" in data and len(data["response"]) > 0:
                                     with cols[j]:
                                         with st.container(border=True):
                                             val_badge = "<span class='value-badge'>🔥 VALUE</span>" if m['is_value'] else ""
-                                            drop_badge = f"<div class='drop-badge'>📉 KÜRESEL HACİM: {m['hacim']} | ORAN DÜŞÜŞÜ</div>" if m['is_dropping'] else ""
+                                            drop_badge = f"<div class='drop-badge'>📉 KÜRESEL HACİM: {m['hacim']} | ORAN DÜŞÜŞÜ ({m['acilis']:.2f} ➡️ {m['oran']:.2f})</div>" if m['is_dropping'] else ""
                                             
                                             if m['is_dropping']: st.markdown(f"<div style='text-align:center;'>{drop_badge}</div>", unsafe_allow_html=True)
                                             st.markdown(f"<div style='text-align:center; margin-bottom: 5px;'><span style='color:#64748b; font-size: 0.85em; font-weight:900;'>{m['saat']}</span><br><span class='team-names'>{m['ev']}</span> <span style='margin: 0 5px; color:#94a3b8;'>vs</span> <span class='team-names'>{m['dep']}</span></div>", unsafe_allow_html=True)
