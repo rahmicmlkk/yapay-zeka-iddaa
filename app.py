@@ -13,37 +13,39 @@ API_KEY = "18961e393de1214e4595758bbebe08aa"
 
 st.set_page_config(page_title="Predict Pro | Big Data Terminal", layout="wide", initial_sidebar_state="collapsed")
 
-# --- ULTRA-LÜKS FİNANSAL (QUANT) TASARIM ---
+# --- AÇIK TEMA (BEYAZ ARKA PLAN) İÇİN KOYU YAZI TASARIMI ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap');
     html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
     
-    .quant-title { text-align: center; font-size: 2.5em; font-weight: 900; letter-spacing: 2px; margin-bottom: 0px; padding-top: 10px; color: #38bdf8; text-transform: uppercase; }
-    .quant-subtitle { text-align: center; color: #64748b; font-size: 0.85em; font-weight: 600; letter-spacing: 5px; margin-bottom: 30px; text-transform: uppercase; }
+    .quant-title { text-align: center; font-size: 2.5em; font-weight: 900; letter-spacing: 2px; margin-bottom: 0px; padding-top: 10px; color: #0284c7; text-transform: uppercase; }
+    .quant-subtitle { text-align: center; color: #64748b; font-size: 0.85em; font-weight: 800; letter-spacing: 5px; margin-bottom: 30px; text-transform: uppercase; }
     
-    div.stButton > button { background: transparent; border: 1px solid #38bdf8; font-weight: 800; letter-spacing: 1px; border-radius: 8px; padding: 10px 24px; transition: all 0.3s ease; width: 100%; color: #38bdf8 !important; }
-    div.stButton > button:hover { background: rgba(56, 189, 248, 0.1); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(56, 189, 248, 0.2); }
-    hr { margin: 1.5em 0; border: none; height: 1px; background: linear-gradient(90deg, rgba(150,150,150,0) 0%, rgba(150,150,150,0.3) 50%, rgba(150,150,150,0) 100%); }
+    div.stButton > button { background: #f8fafc; border: 2px solid #0284c7; font-weight: 900; letter-spacing: 1px; border-radius: 8px; padding: 10px 24px; transition: all 0.3s ease; width: 100%; color: #0284c7 !important; }
+    div.stButton > button:hover { background: #0284c7; color: #ffffff !important; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3); }
+    hr { margin: 1.5em 0; border: none; height: 1px; background: rgba(0,0,0,0.1); }
     
-    .wa-button { display: block; text-align: center; background-color: rgba(37, 211, 102, 0.1); color: #25D366 !important; border: 1px solid #25D366; padding: 10px; border-radius: 8px; text-decoration: none; font-weight: 800; letter-spacing: 1px; margin-top: 15px; transition: all 0.3s; }
-    .wa-button:hover { background-color: #25D366; color: #fff !important; }
+    .wa-button { display: block; text-align: center; background-color: #25D366; color: #ffffff !important; padding: 10px; border-radius: 8px; text-decoration: none; font-weight: 900; letter-spacing: 1px; margin-top: 15px; transition: all 0.3s; }
+    .wa-button:hover { background-color: #16a34a; transform: scale(1.02); }
     
-    .value-badge { background-color: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid #fbbf24; padding: 2px 8px; border-radius: 12px; font-size: 0.75em; font-weight: 900; margin-left: 5px; }
-    .drop-badge { background-color: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid #ef4444; padding: 2px 8px; border-radius: 12px; font-size: 0.7em; font-weight: 900; animation: pulse 2s infinite; display: inline-block; margin-bottom:5px;}
+    .value-badge { background-color: #f59e0b; color: #ffffff; padding: 3px 10px; border-radius: 12px; font-size: 0.75em; font-weight: 900; margin-left: 5px; }
+    .drop-badge { background-color: #ef4444; color: #ffffff; padding: 3px 10px; border-radius: 12px; font-size: 0.75em; font-weight: 900; animation: pulse 2s infinite; display: inline-block; margin-bottom:5px;}
     
-    /* YENİ: ŞİKE RADARI (DARK WEB) TASARIMI */
-    .darkweb-box { border: 1px solid #ef4444; background: rgba(239, 68, 68, 0.05); padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 0 15px rgba(239, 68, 68, 0.2); }
-    .darkweb-title { color: #ef4444; font-weight: 900; font-size: 1.2em; text-align: center; letter-spacing: 2px; margin-bottom: 10px; animation: pulse 1.5s infinite; }
-    .darkweb-source { font-family: 'Courier New', monospace; font-size: 0.8em; color: #f87171; text-align: center; margin-bottom: 10px; }
+    .darkweb-box { border: 2px solid #ef4444; background: #fef2f2; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.1); }
+    .darkweb-title { color: #b91c1c; font-weight: 900; font-size: 1.2em; text-align: center; letter-spacing: 2px; margin-bottom: 10px; animation: pulse 1.5s infinite; }
+    .darkweb-source { font-family: 'Courier New', monospace; font-size: 0.85em; color: #991b1b; font-weight: bold; text-align: center; margin-bottom: 10px; }
     
     @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
     
-    .scout-box { border-left: 3px solid #8b5cf6; padding: 15px; border-radius: 0 8px 8px 0; font-size: 0.85em; font-weight: 500; line-height: 1.5; margin-bottom: 10px; background: rgba(139, 92, 246, 0.05); }
-    .injury-box { border-left: 3px solid #ef4444; padding: 10px 15px; border-radius: 0 8px 8px 0; font-size: 0.85em; font-weight: 600; color:#ef4444; background: rgba(239, 68, 68, 0.05); margin-bottom: 10px; }
-    .xg-box { display: flex; justify-content: space-between; padding: 12px; border-radius: 8px; border: 1px solid rgba(150,150,150,0.2); margin-bottom: 10px; background: rgba(150,150,150,0.05); font-weight:800; align-items:center;}
-    .xg-value { font-size: 1.4em; color: #10b981; }
-    .team-names { font-size: 1.3em; font-weight: 900; letter-spacing: 0.5px; }
+    .scout-box { border-left: 4px solid #6366f1; padding: 15px; border-radius: 0 8px 8px 0; font-size: 0.9em; font-weight: 700; color: #334155; line-height: 1.5; margin-bottom: 10px; background: #e0e7ff; }
+    .injury-box { border-left: 4px solid #ef4444; padding: 10px 15px; border-radius: 0 8px 8px 0; font-size: 0.9em; font-weight: 800; color:#b91c1c; background: #fef2f2; margin-bottom: 10px; }
+    .xg-box { display: flex; justify-content: space-between; padding: 12px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); margin-bottom: 10px; background: #f8fafc; font-weight:800; align-items:center;}
+    .xg-value { font-size: 1.5em; color: #059669; font-weight: 900; }
+    
+    .team-names { font-size: 1.3em; font-weight: 900; letter-spacing: 0.5px; color: #0f172a; }
+    .kombine-title { text-align:center; font-size: 1.2em; font-weight: 900; color: #0f172a; margin-bottom: 5px; }
+    .kombine-desc { text-align:center; font-size: 0.85em; color: #64748b; font-weight: 600; margin-bottom: 15px; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -78,11 +80,8 @@ def maclarini_getir(hedef_tarih):
     response = requests.get(url, headers=headers, params=querystring)
     return response.json()
 
-# --- YENİ: KÜRESEL PARA AKIŞI & ŞİKE SİMÜLASYONU ---
 def gizli_istihbarat_olustur(oran, guven, mac_ismi):
     sayi = int(hashlib.md5(mac_ismi.encode()).hexdigest(), 16)
-    
-    # Normal Para Akışı (Dropping Odds)
     is_dropping = guven > 75 and (sayi % 4 == 0) 
     acilis_orani = oran
     hacim = 0
@@ -90,15 +89,9 @@ def gizli_istihbarat_olustur(oran, guven, mac_ismi):
         acilis_orani = oran + (sayi % 50) / 100.0
         hacim = f"${1.2 + (sayi % 80) / 10.0:.1f}M"
         
-    # YENİ: Şike / Dark Web Sızıntı Radarı (Günde 1 veya 2 maça denk gelir)
     is_fixed = (sayi % 14 == 0) 
-    kaynaklar = [
-        "[X] KAYNAK: Rusya Yeraltı Sendikası (Dark Web)", 
-        "[X] KAYNAK: Asya Bahis Borsası (Anormal Hacim Tespiti)", 
-        "[X] KAYNAK: Sızdırılmış VIP Telegram Paneli"
-    ]
+    kaynaklar = ["[X] KAYNAK: Rusya Yeraltı Sendikası (Dark Web)", "[X] KAYNAK: Asya Bahis Borsası (Anormal Hacim Tespiti)", "[X] KAYNAK: Sızdırılmış VIP Telegram Paneli"]
     sike_kaynagi = kaynaklar[sayi % len(kaynaklar)] if is_fixed else ""
-    
     return acilis_orani, hacim, is_dropping, is_fixed, sike_kaynagi
 
 def oran_ve_value_hesapla(guven, takimlar_str):
@@ -166,33 +159,32 @@ def tum_tahminleri_hesapla(ev_guc, dep_guc, ev_form, dep_form, xg_ev, xg_dep, ek
     en_gercekci = max(tahminler, key=tahminler.get)
     return tahminler, en_gercekci, tahminler[en_gercekci]
 
-def kupon_cizdir(baslik, kupon_listesi):
+def kupon_cizdir(baslik, aciklama, renk, kupon_listesi):
     with st.container(border=True):
-        st.markdown(f"<div style='text-align: center; font-weight: 900; letter-spacing: 2px; font-size: 1.1em; color: #38bdf8;'>{baslik.upper()}</div>", unsafe_allow_html=True)
-        st.markdown("<hr style='margin-top: 10px; margin-bottom: 15px;'>", unsafe_allow_html=True)
-        if not kupon_listesi: return
+        st.markdown(f"<div class='kombine-title' style='color: {renk};'>{baslik.upper()}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='kombine-desc'>{aciklama}</div>", unsafe_allow_html=True)
+        st.markdown("<hr style='margin-top: 5px; margin-bottom: 15px;'>", unsafe_allow_html=True)
+        if not kupon_listesi: 
+            st.warning("Algoritma bu portföy için uygun maç bulamadı. Lig ekleyin.")
+            return
             
         toplam_oran = 1.0
-        wa_text = f"📊 *PREDICT PRO - {baslik}*\n\n"
+        wa_text = f"📊 *PREDICT PRO KOMBİNE - {baslik}*\n\n"
         
         for k_mac in kupon_listesi:
             toplam_oran *= k_mac['oran']
             value_badge = "<span class='value-badge'>🔥 VALUE</span>" if k_mac.get('is_value', False) else ""
-            drop_badge = f"<div class='drop-badge'>📉 HACİM: {k_mac['hacim']} | ORAN ÇAKILDI</div>" if k_mac.get('is_dropping', False) else ""
+            drop_badge = f"<div class='drop-badge'>📉 HACİM: {k_mac['hacim']} | ORAN DÜŞÜŞÜ</div>" if k_mac.get('is_dropping', False) else ""
             
             if k_mac.get('is_dropping', False): st.markdown(drop_badge, unsafe_allow_html=True)
             st.markdown(f"<div style='font-size: 0.85em; color: #64748b; margin-bottom: 2px; font-weight: 800;'>{k_mac['saat']}</div>", unsafe_allow_html=True)
             st.markdown(f"<div class='team-names'>{k_mac['mac']}</div>", unsafe_allow_html=True)
-            st.markdown(f"<div style='margin-bottom: 15px;'><span style='color: #38bdf8; font-weight: 900;'>{k_mac['tercih']}</span> <span style='font-size: 0.9em; font-weight:800; color:gray;'>| @ {k_mac['oran']:.2f}</span> {value_badge}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div style='margin-bottom: 15px;'><span style='color: {renk}; font-weight: 900;'>{k_mac['tercih']}</span> <span style='font-size: 0.9em; font-weight:800; color:#334155;'>| @ {k_mac['oran']:.2f}</span> {value_badge}</div>", unsafe_allow_html=True)
             wa_text += f"▪️ {k_mac['mac']}\n└ {k_mac['tercih']} (@{k_mac['oran']:.2f})\n\n"
             
-        st.markdown(f"<div style='text-align: right; font-size: 1.2em; margin-top: 10px; font-weight: 900;'>Olası Çarpan: {toplam_oran:.2f}x</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='text-align: right; font-size: 1.2em; margin-top: 10px; font-weight: 900; color:#0f172a;'>Olası Çarpan: {toplam_oran:.2f}x</div>", unsafe_allow_html=True)
         wa_text += f"📈 *Toplam Çarpan: {toplam_oran:.2f}x*"
         st.markdown(f"<a href='https://api.whatsapp.com/send?text={urllib.parse.quote(wa_text)}' target='_blank' class='wa-button'>WhatsApp ile Gönder</a>", unsafe_allow_html=True)
-
-def mini_yuzde_kutu(baslik, deger):
-    renk = "#10b981" if deger >= 75 else ("#f59e0b" if deger >= 50 else "#ef4444")
-    return f"<div style='background:rgba(150,150,150,0.05); padding:8px; border-radius:6px; border:1px solid rgba(150,150,150,0.1); text-align:center;'><div style='font-size:0.75em; color:#94a3b8; font-weight:700; margin-bottom:3px;'>{baslik}</div><div style='color:{renk}; font-weight:900; font-size:1.1em;'>%{deger:.0f}</div></div>"
 
 # --- ARAYÜZ ---
 col_sol, col_sag = st.columns([1, 2])
@@ -218,8 +210,8 @@ elif "response" in data and len(data["response"]) > 0:
         st.session_state.aktif_ligler = secilen_ligler
         
     if st.session_state.analiz_aktif:
-        with st.spinner("Dark Web Forumları, Telegram Grupları ve Global Veritabanları Taranıyor..."):
-            time.sleep(2) # Şov amaçlı tarama gecikmesi
+        with st.spinner("Dark Web Forumları, xG Motoru ve Kombinasyonlar Hesaplanıyor..."):
+            time.sleep(2) 
             tum_analizler = []
             lig_gruplari = {}
             for mac in data["response"]:
@@ -245,32 +237,16 @@ elif "response" in data and len(data["response"]) > 0:
                     tum_analizler.append({"mac": mac_ismi_str, "saat": saat, "tercih": banko_tercih, "guven": banko_guven, "oran": oran, "is_value": is_value, "is_dropping": is_dropping, "is_fixed": is_fixed, "sike_kaynagi": sike_kaynagi, "acilis": acilis_orani, "hacim": hacim, "oran_ust": tahminler_sozlugu["2.5 Gol Üstü"], "oran_iy": tahminler_sozlugu["İlk Yarı 0.5 Gol Üstü"]})
 
             st.write("")
-            tab_darkweb, tab_rolling, tab_ligler = st.tabs(["🕵️‍♂️ KÜRESEL SIZINTILAR (DARK WEB)", "🚀 KASA PORTFÖYÜ", "MAÇ MAÇ BİG DATA ANALİZİ"])
+            tab_darkweb, tab_rolling, tab_kombineler, tab_ligler = st.tabs(["🕵️‍♂️ DARK WEB", "🚀 2.00x KASA", "💼 ALGORİTMİK KOMBİNELER", "MAÇ MAÇ BİG DATA"])
 
             with tab_darkweb:
                 st.markdown("<br>", unsafe_allow_html=True)
-                
                 sike_supheli_maclar = [m for m in tum_analizler if m["is_fixed"]]
-                
                 if len(sike_supheli_maclar) > 0:
                     st.success("Sistem Tarandı: Küresel yeraltı ağlarında anormal istihbarat tespit edildi.")
                     for sm in sike_supheli_maclar:
-                        st.markdown(f"""
-                        <div class='darkweb-box'>
-                            <div class='darkweb-title'>🚨 ŞİKE ŞÜPHESİ / KÜRESEL SIZINTI TESPİTİ 🚨</div>
-                            <div class='darkweb-source'>{sm['sike_kaynagi']}</div>
-                            <hr style='border-color: rgba(239, 68, 68, 0.2); margin: 10px 0;'>
-                            <div style='text-align:center;'>
-                                <span style='color:#f87171; font-size: 0.9em; font-weight:800;'>{sm['saat']}</span><br>
-                                <span style='font-size: 1.5em; font-weight: 900; color:#f8fafc;'>{sm['mac']}</span><br><br>
-                                <span style='font-size: 0.9em; text-transform: uppercase; color:#fca5a5;'>Sızdırılan Tahmin Yönü:</span><br>
-                                <b style='color:#ef4444; font-size: 1.8em;'>{sm['tercih']}</b><br>
-                                <span style='font-size:1em; font-weight:800; color:#f87171;'>Olası Oran: @{sm['oran']:.2f}</span>
-                            </div>
-                        </div>
-                        """, unsafe_allow_html=True)
-                else:
-                    st.info("📡 Şu anki ağ taramasında %100 doğrulukta bir sızıntı veya şike verisi tespit edilemedi. (Sistem sürekli taramaya devam ediyor...)")
+                        st.markdown(f"""<div class='darkweb-box'><div class='darkweb-title'>🚨 ŞİKE ŞÜPHESİ / KÜRESEL SIZINTI TESPİTİ 🚨</div><div class='darkweb-source'>{sm['sike_kaynagi']}</div><hr style='border-color: rgba(239, 68, 68, 0.2); margin: 10px 0;'><div style='text-align:center;'><span style='color:#7f1d1d; font-size: 0.9em; font-weight:900;'>{sm['saat']}</span><br><span style='font-size: 1.6em; font-weight: 900; color:#450a0a;'>{sm['mac']}</span><br><br><span style='font-size: 0.9em; text-transform: uppercase; color:#991b1b; font-weight:800;'>Sızdırılan Tahmin Yönü:</span><br><b style='color:#dc2626; font-size: 1.8em;'>{sm['tercih']}</b><br><span style='font-size:1.1em; font-weight:900; color:#b91c1c;'>Olası Oran: @{sm['oran']:.2f}</span></div></div>""", unsafe_allow_html=True)
+                else: st.info("📡 Şu anki ağ taramasında %100 doğrulukta bir sızıntı veya şike verisi tespit edilemedi.")
 
             with tab_rolling:
                 st.markdown("<br>", unsafe_allow_html=True)
@@ -284,12 +260,12 @@ elif "response" in data and len(data["response"]) > 0:
                 
                 col_kupon, col_sim = st.columns([1, 1])
                 with col_kupon:
-                    if len(rolling_kupon) > 0: kupon_cizdir("GÜNLÜK HEDEF YATIRIM (~2.00x)", rolling_kupon)
+                    if len(rolling_kupon) > 0: kupon_cizdir("GÜNLÜK HEDEF YATIRIM (~2.00x)", "Her gün kasayı ikiye katlamak için en uygun risk profili.", "#0284c7", rolling_kupon)
                     else: st.warning("Güvenli oran için lig ekleyin.")
 
                 with col_sim:
                     with st.container(border=True):
-                        st.markdown("<div style='text-align: center; font-weight: 800; letter-spacing: 2px; font-size: 1.1em; color: #38bdf8;'>20 GÜNLÜK BİLEŞİK GETİRİ (ROI) SİMÜLASYONU</div>", unsafe_allow_html=True)
+                        st.markdown("<div style='text-align: center; font-weight: 900; letter-spacing: 2px; font-size: 1.1em; color: #0284c7;'>20 GÜNLÜK BİLEŞİK GETİRİ SİMÜLASYONU</div>", unsafe_allow_html=True)
                         st.markdown("<hr style='margin-top: 10px; margin-bottom: 10px;'>", unsafe_allow_html=True)
                         kasa = 100
                         gunler = []
@@ -297,6 +273,35 @@ elif "response" in data and len(data["response"]) > 0:
                             gunler.append({"Aşama": f"Gün {gun}", "Sermaye": f"{int(kasa):,} ₺", "Hedef": f"{int(kasa*2):,} ₺"})
                             kasa *= 2
                         st.dataframe(pd.DataFrame(gunler), hide_index=True, use_container_width=True, height=250)
+
+            # --- YENİ EKLENEN SEKMELER: ÖZEL KOMBİNELER ---
+            with tab_kombineler:
+                st.markdown("<br>", unsafe_allow_html=True)
+                st.info("💡 Yapay zeka bültendeki maçları tarayarak farklı risk ve kazanç stratejilerine göre 3 ayrı yatırım portföyü (Kombine) oluşturdu.")
+                
+                c1, c2, c3 = st.columns(3)
+                
+                # 1. HEDGE FONU (Düşük Risk, Ana Kasa)
+                with c1:
+                    bankolar = sorted(tum_analizler, key=lambda x: x["guven"], reverse=True)[:3]
+                    kupon_cizdir("🛡️ HEDGE FONU (ANA KASA)", "Risk barındırmayan, 1.5 Üst veya Çifte Şans gibi matematiksel olarak en garanti 3 eşleşme.", "#10b981", bankolar)
+                
+                # 2. LİKİDİTE GOL AĞI (xG Yüksek Olanlar)
+                with c2:
+                    kullanilan_maclar = [m["mac"] for m in bankolar]
+                    gollar = sorted([m for m in tum_analizler if m["mac"] not in kullanilan_maclar], key=lambda x: x["oran_ust"], reverse=True)[:3]
+                    gollar_list = [{"mac": m["mac"], "saat": m["saat"], "tercih": "2.5 Gol Üstü", "guven": m["oran_ust"], "oran": oran_ve_value_hesapla(m["oran_ust"], m["mac"])[0], "is_value": oran_ve_value_hesapla(m["oran_ust"], m["mac"])[1], "is_dropping": False} for m in gollar]
+                    kupon_cizdir("⚽ LİKİDİTE GOL AĞI", "xG (Gol Beklentisi) formülüne göre savunma zaafiyeti yüksek, bol gollü geçecek 3 karşılaşma.", "#3b82f6", gollar_list)
+                    
+                # 3. YÜKSEK RİSK / ALPHA FONU (Value + Dropping)
+                with c3:
+                    kullanilan_maclar.extend([m["mac"] for m in gollar])
+                    # Sadece Value olanları, oran düşenleri veya sürpriz Beraberlikleri çek
+                    yuksek_risk = sorted([m for m in tum_analizler if m["mac"] not in kullanilan_maclar and (m["is_value"] or m["is_dropping"] or m["oran"] > 1.80)], key=lambda x: x["oran"], reverse=True)[:3]
+                    # Eğer yeterli yüksek risk yoksa, en zor maçları koy
+                    if len(yuksek_risk) < 3:
+                        yuksek_risk = sorted([m for m in tum_analizler if m["mac"] not in kullanilan_maclar], key=lambda x: x["guven"])[:3]
+                    kupon_cizdir("🌋 ALPHA FONU (YÜKSEK GETİRİ)", "Küresel para akışına ve şüpheli değerlere (Value) dayalı, riski yüksek ama getirisi devasa 3'lü kombinasyon.", "#ef4444", yuksek_risk)
 
             with tab_ligler:
                 st.markdown("<br>", unsafe_allow_html=True)
@@ -310,22 +315,22 @@ elif "response" in data and len(data["response"]) > 0:
                                     with cols[j]:
                                         with st.container(border=True):
                                             val_badge = "<span class='value-badge'>🔥 VALUE</span>" if m['is_value'] else ""
-                                            drop_badge = f"<div class='drop-badge'>📉 KÜRESEL HACİM: {m['hacim']} | ORAN DÜŞÜŞÜ ({m['acilis']:.2f} ➡️ {m['oran']:.2f})</div>" if m['is_dropping'] else ""
+                                            drop_badge = f"<div class='drop-badge'>📉 KÜRESEL HACİM: {m['hacim']} | ORAN DÜŞÜŞÜ</div>" if m['is_dropping'] else ""
                                             
                                             if m['is_dropping']: st.markdown(f"<div style='text-align:center;'>{drop_badge}</div>", unsafe_allow_html=True)
-                                            st.markdown(f"<div style='text-align:center; margin-bottom: 5px;'><span style='color:#64748b; font-size: 0.85em; font-weight:800;'>{m['saat']}</span><br><span class='team-names'>{m['ev']}</span> <span style='margin: 0 5px;'>vs</span> <span class='team-names'>{m['dep']}</span></div>", unsafe_allow_html=True)
+                                            st.markdown(f"<div style='text-align:center; margin-bottom: 5px;'><span style='color:#64748b; font-size: 0.85em; font-weight:900;'>{m['saat']}</span><br><span class='team-names'>{m['ev']}</span> <span style='margin: 0 5px; color:#94a3b8;'>vs</span> <span class='team-names'>{m['dep']}</span></div>", unsafe_allow_html=True)
                                             st.markdown("<hr style='margin: 10px 0;'>", unsafe_allow_html=True)
-                                            st.markdown(f"<div style='text-align:center; padding: 12px; background: rgba(56, 189, 248, 0.05); border-radius: 8px; margin-bottom: 10px; border: 1px solid rgba(56, 189, 248, 0.2);'><span style='font-size: 0.8em; font-weight:800; text-transform: uppercase; letter-spacing: 1px;'>15 MARKET ARASINDAN EN GÜVENLİSİ:</span><br><b style='color:#38bdf8; font-size: 1.3em;'>{m['en_gercekci_tercih']}</b><br><span style='font-size:1em; font-weight:800; color:gray;'>Güncel Oran: @{m['oran']:.2f}</span> {val_badge}</div>", unsafe_allow_html=True)
+                                            st.markdown(f"<div style='text-align:center; padding: 12px; background: #f0f9ff; border-radius: 8px; margin-bottom: 10px; border: 1px solid #bae6fd;'><span style='font-size: 0.8em; font-weight:800; text-transform: uppercase; letter-spacing: 1px; color:#0369a1;'>YAPAY ZEKA EN GÜVENLİ TERCİH:</span><br><b style='color:#0284c7; font-size: 1.3em;'>{m['en_gercekci_tercih']}</b><br><span style='font-size:1em; font-weight:900; color:#0f172a;'>Güncel Oran: @{m['oran']:.2f}</span> {val_badge}</div>", unsafe_allow_html=True)
                                             
                                             with st.expander("🧠 BİG DATA METRİKLERİ (Taktik, xG, Kadro)", expanded=False):
-                                                st.markdown("<div style='font-weight:800; font-size:0.85em; margin-bottom:5px; color:#64748b;'>POISSON GOL BEKLENTİSİ (xG)</div>", unsafe_allow_html=True)
+                                                st.markdown("<div style='font-weight:900; font-size:0.85em; margin-bottom:5px; color:#475569;'>POISSON GOL BEKLENTİSİ (xG)</div>", unsafe_allow_html=True)
                                                 st.markdown(f"<div class='xg-box'><div>{m['ev'][:12]}..</div><div class='xg-value'>{m['xg_ev']:.2f} <span style='color:#64748b; font-size:0.7em;'>xG</span></div></div>", unsafe_allow_html=True)
                                                 st.markdown(f"<div class='xg-box'><div>{m['dep'][:12]}..</div><div class='xg-value'>{m['xg_dep']:.2f} <span style='color:#64748b; font-size:0.7em;'>xG</span></div></div>", unsafe_allow_html=True)
                                                 
                                                 if "DİKKAT" in m['eksikler']: st.markdown(f"<div class='injury-box'>{m['eksikler']}</div>", unsafe_allow_html=True)
                                                 st.markdown(f"<div class='scout-box'><b>Taktiksel Dağılım:</b><br>{m['ev']}: {m['t_ev']}<br>{m['dep']}: {m['t_dep']}<br><br><b>Scout Özeti:</b> {m['scout']}</div>", unsafe_allow_html=True)
                                                 
-                                                st.markdown("<div style='text-align:center; font-size:0.8em; font-weight:800; margin-bottom:5px; color:#64748b;'>Matematiksel Skor Dağılımı</div>", unsafe_allow_html=True)
+                                                st.markdown("<div style='text-align:center; font-size:0.85em; font-weight:900; margin-bottom:5px; margin-top:15px; color:#475569;'>Matematiksel Skor Dağılımı</div>", unsafe_allow_html=True)
                                                 st.markdown("<div class='score-sim-box'>", unsafe_allow_html=True)
                                                 for skor in m["skorlar"]:
                                                     st.markdown(f"<div class='score-item'><div class='score-val'>{skor['skor']}</div><div class='score-prob'>%{skor['yuzde']:.1f}</div></div>", unsafe_allow_html=True)
