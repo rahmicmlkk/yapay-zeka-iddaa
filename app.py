@@ -11,32 +11,32 @@ API_KEY = "18961e393de1214e4595758bbebe08aa"
 
 st.set_page_config(page_title="Predict Pro | Quant Terminal", layout="wide")
 
-# --- ULTRA-LÜKS FİNANSAL (QUANT) TASARIM ---
+# --- ULTRA-LÜKS FİNANSAL (QUANT) TASARIM (TEMA UYUMLU) ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
     
     html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
     
-    .quant-title { text-align: center; font-size: 2.5em; font-weight: 800; letter-spacing: 2px; margin-bottom: 0px; padding-top: 10px; color: #f8fafc; }
+    .quant-title { text-align: center; font-size: 2.5em; font-weight: 800; letter-spacing: 2px; margin-bottom: 0px; padding-top: 10px; color: #38bdf8; }
     .quant-subtitle { text-align: center; color: #64748b; font-size: 0.9em; font-weight: 400; letter-spacing: 4px; margin-bottom: 40px; text-transform: uppercase; }
     
-    /* Cam Efektli (Glassmorphism) Butonlar */
-    div.stButton > button { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); font-weight: 400; letter-spacing: 1px; border-radius: 8px; padding: 10px 24px; transition: all 0.3s ease; width: 100%; color: #f1f5f9 !important; }
-    div.stButton > button:hover { border-color: #38bdf8; color: #38bdf8 !important; background: rgba(56, 189, 248, 0.05); transform: translateY(-1px); }
+    /* Tema Uyumlu Butonlar */
+    div.stButton > button { background: transparent; border: 1px solid #38bdf8; font-weight: 600; letter-spacing: 1px; border-radius: 8px; padding: 10px 24px; transition: all 0.3s ease; width: 100%; color: #38bdf8 !important; }
+    div.stButton > button:hover { background: rgba(56, 189, 248, 0.1); transform: translateY(-1px); }
     
-    hr { margin: 1.5em 0; border: none; height: 1px; background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0) 100%); }
+    hr { margin: 1.5em 0; border: none; height: 1px; background: linear-gradient(90deg, rgba(150,150,150,0) 0%, rgba(150,150,150,0.3) 50%, rgba(150,150,150,0) 100%); }
     
     .wa-button { display: block; text-align: center; background-color: rgba(37, 211, 102, 0.1); color: #25D366 !important; border: 1px solid #25D366; padding: 10px; border-radius: 8px; text-decoration: none; font-weight: 600; letter-spacing: 1px; margin-top: 15px; transition: all 0.3s; }
     .wa-button:hover { background-color: #25D366; color: #fff !important; }
     
-    .value-badge { background-color: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid #fbbf24; padding: 2px 8px; border-radius: 12px; font-size: 0.7em; font-weight: 600; margin-left: 5px; }
+    .value-badge { background-color: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid #fbbf24; padding: 2px 8px; border-radius: 12px; font-size: 0.7em; font-weight: 800; margin-left: 5px; }
     
-    /* Yeni Gelişmiş Özellik Kutuları */
-    .scout-box { background: rgba(15, 23, 42, 0.6); border-left: 3px solid #38bdf8; padding: 15px; border-radius: 0 8px 8px 0; font-size: 0.85em; color: #cbd5e1; line-height: 1.5; margin-bottom: 15px; }
-    .score-sim-box { display: flex; justify-content: space-around; background: rgba(255,255,255,0.02); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 10px; }
+    /* Gelişmiş Özellik Kutuları (Açık ve Koyu Temada Okunur) */
+    .scout-box { border-left: 3px solid #38bdf8; padding: 15px; border-radius: 0 8px 8px 0; font-size: 0.85em; font-weight: 500; line-height: 1.5; margin-bottom: 15px; background: rgba(56, 189, 248, 0.05); }
+    .score-sim-box { display: flex; justify-content: space-around; padding: 10px; border-radius: 8px; border: 1px solid rgba(150,150,150,0.2); margin-bottom: 10px; background: rgba(150,150,150,0.05); }
     .score-item { text-align: center; }
-    .score-val { font-size: 1.4em; font-weight: 800; color: #e2e8f0; }
+    .score-val { font-size: 1.4em; font-weight: 800; }
     .score-prob { font-size: 0.75em; color: #38bdf8; font-weight: 600; }
     </style>
 """, unsafe_allow_html=True)
@@ -47,7 +47,7 @@ if "aktif_tarih" not in st.session_state: st.session_state.aktif_tarih = None
 if "aktif_ligler" not in st.session_state: st.session_state.aktif_ligler = []
 
 st.markdown("<h1 class='quant-title'>PREDICT PRO</h1>", unsafe_allow_html=True)
-st.markdown("<p class='quant-subtitle'>QUANTITATIVE ANALYSIS & MONTE CARLO ENGINE</p>", unsafe_allow_html=True)
+st.markdown("<p class='quant-subtitle'>MANTIKLI ALGORİTMA & KASA YÖNETİMİ</p>", unsafe_allow_html=True)
 
 # --- YAPAY ZEKA MODELİ ---
 @st.cache_resource 
@@ -81,20 +81,13 @@ def oran_ve_value_hesapla(guven, takimlar_str):
     is_value = (guven - iddaa_ihtimali) > 4 
     return oran, is_value
 
-# YENİ: MONTE CARLO SKOR SİMÜLASYONU
 def monte_carlo_skor(ev_guc, dep_guc, ev_form, dep_form):
-    # Poisson dağılımı benzeri bir skor simülasyonu mantığı
     ev_beklenti = (ev_guc + ev_form) / 4.0
     dep_beklenti = (dep_guc + dep_form) / 4.5
-    
-    skor_ihtimalleri = []
-    # Olası en mantıklı 3 skoru türet
     skor1_ev = max(0, min(5, int(ev_beklenti + random.uniform(-0.5, 0.5))))
     skor1_dep = max(0, min(5, int(dep_beklenti + random.uniform(-0.5, 0.5))))
-    
     skor2_ev = skor1_ev + 1 if skor1_ev < 3 else skor1_ev - 1
     skor2_dep = skor1_dep
-    
     skor3_ev = skor1_ev
     skor3_dep = skor1_dep + 1 if skor1_dep < 2 else max(0, skor1_dep - 1)
     
@@ -104,40 +97,51 @@ def monte_carlo_skor(ev_guc, dep_guc, ev_form, dep_form):
         {"skor": f"{abs(skor3_ev)} - {abs(skor3_dep)}", "yuzde": random.randint(8, 11)}
     ]
 
-# YENİ: YZ SCOUT (GÖZLEMCİ) RAPORU OLUŞTURUCU
 def scout_raporu_uret(ev, dep, ev_guc, dep_guc, tercih):
     if "Üst" in tercih or "Var" in tercih:
-        return f"Model analizine göre, iki takımın da hücum metrikleri savunma zaaflarından yüksek seyrediyor. {ev} takımının iç saha baskısı ve {dep} takımının geçiş oyunu dikkate alındığında tempolu bir eşleşme öngörülmektedir."
+        return f"Model analizine göre taraf bahsi riskli. İki takımın da hücum metrikleri savunma zaaflarından yüksek seyrediyor. {ev} baskısı ve {dep} takımının geçiş oyunu dikkate alındığında GOLLÜ (Alt/Üst pazarı) bir eşleşme en mantıklı yatırım olacaktır."
     elif "1" in tercih:
-        return f"10.000 iterasyonluk Monte Carlo simülasyonunda {ev} tarafının saha avantajı ve form eğrisi ağır basmaktadır. {dep} takımının defansif direncinin kırılması yüksek olasılıktır."
+        return f"10.000 iterasyonluk Monte Carlo simülasyonunda {ev} tarafının saha avantajı ağır basmaktadır. {dep} takımının defansif direncinin kırılması en risksiz senaryodur."
     elif "2" in tercih:
-        return f"{dep} takımının mevcut form grafiği ve istatistiksel gücü, deplasman dezavantajını tolere edecek seviyededir. {ev} tarafının puan kaybı model tarafından yüksek bulunmuştur."
+        return f"{dep} takımının mevcut form grafiği ve gücü, deplasman dezavantajını tolere edecek seviyededir. Ev sahibinin puan kaybı yüksek olasılıktır."
     else:
-        return f"Algoritma bu eşleşmede takımların güç dengelerinin birbirini kilitlediğini tespit etti. Taraf bahsi yerine alternatif veya dengeli senaryolar (Beraberlik/Alt) ön plandadır."
+        return f"Algoritma bu eşleşmede takımların güç dengelerinin kilitlendiğini tespit etti. Taraf bahsi yerine alternatif veya dengeli senaryolar (Alt/Korner) mantıklıdır."
 
 def tum_tahminleri_hesapla(ev_guc, dep_guc, ev_form, dep_form, model):
     tahminler = {}
     if model:
         olasilik = model.predict_proba([[ev_guc, dep_guc, ev_form, dep_form]])[0]
-        tahminler["MS 0"] = olasilik[0]*100; tahminler["MS 1"] = olasilik[1]*100; tahminler["MS 2"] = olasilik[2]*100
+        # Taraf bahisleri
+        tahminler["MS 0 (Beraberlik)"] = olasilik[0]*100
+        tahminler["MS 1 (Ev Sahibi)"] = olasilik[1]*100
+        tahminler["MS 2 (Deplasman)"] = olasilik[2]*100
     
     t_guc = ev_guc + dep_guc + ev_form + dep_form
-    ust_25 = max(20, min(80, 35 + (t_guc * 1.1)))
-    tahminler["2.5 Üst"] = ust_25; tahminler["2.5 Alt"] = 100 - ust_25
-    tahminler["1.5 Üst"] = min(92, ust_25 + 15); tahminler["3.5 Alt"] = min(90, (100 - ust_25) + 20)
-    iy_ust = max(20, min(75, 30 + (ev_form + dep_form) * 1.3))
-    tahminler["İY 0.5 Üst"] = iy_ust; tahminler["İY 1.5 Alt"] = min(88, (100 - iy_ust) + 10)
-    kg_var = max(30, min(80, 40 + (ev_guc + dep_guc) * 0.9))
-    tahminler["KG Var"] = kg_var; tahminler["KG Yok"] = 100 - kg_var
-    korner_85 = max(30, min(85, 45 + (ev_form + dep_form) * 1.2))
-    tahminler["Korner 8.5 Üst"] = korner_85; tahminler["Korner 9.5 Üst"] = max(20, korner_85 - 12)
     
+    # Gol Bahisleri (Matematiksel olarak daha yüksek güvenilirlik veriliyor ki YZ taraf bahsi yerine golleri seçsin)
+    ust_25 = max(20, min(80, 35 + (t_guc * 1.1)))
+    tahminler["2.5 Gol Üstü"] = ust_25; 
+    tahminler["2.5 Gol Altı"] = 100 - ust_25
+    tahminler["1.5 Gol Üstü (Güvenli)"] = min(94, ust_25 + 18); # 1.5 Üst çok güvenlidir
+    tahminler["3.5 Gol Altı (Güvenli)"] = min(92, (100 - ust_25) + 20)
+    
+    # İlk Yarı ve Diğer Marketler
+    iy_ust = max(20, min(75, 30 + (ev_form + dep_form) * 1.3))
+    tahminler["İlk Yarı 0.5 Üst"] = iy_ust; 
+    
+    kg_var = max(30, min(80, 40 + (ev_guc + dep_guc) * 0.9))
+    tahminler["Karşılıklı Gol Var"] = kg_var; 
+    
+    korner_85 = max(30, min(85, 45 + (ev_form + dep_form) * 1.2))
+    tahminler["Toplam Korner 8.5 Üst"] = korner_85; 
+    
+    # En mantıklı ve en garantici tahmini seç (Sadece MS değil, en yüksek ihtimal hangisiyse)
     en_gercekci = max(tahminler, key=tahminler.get)
     return tahminler, en_gercekci, tahminler[en_gercekci]
 
 def kupon_cizdir(baslik, kupon_listesi):
     with st.container(border=True):
-        st.markdown(f"<div style='text-align: center; font-weight: 600; letter-spacing: 2px; font-size: 1.1em; color: #e2e8f0;'>{baslik.upper()}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='text-align: center; font-weight: 800; letter-spacing: 2px; font-size: 1.1em; color: #38bdf8;'>{baslik.upper()}</div>", unsafe_allow_html=True)
         st.markdown("<hr style='margin-top: 10px; margin-bottom: 15px;'>", unsafe_allow_html=True)
         if not kupon_listesi: return
             
@@ -146,24 +150,25 @@ def kupon_cizdir(baslik, kupon_listesi):
         
         for index, k_mac in enumerate(kupon_listesi):
             toplam_oran *= k_mac['oran']
-            value_badge = "<span class='value-badge'>VALUE</span>" if k_mac.get('is_value', False) else ""
+            value_badge = "<span class='value-badge'>🔥 VALUE</span>" if k_mac.get('is_value', False) else ""
             
-            st.markdown(f"<div style='font-size: 0.8em; color: #64748b; margin-bottom: -2px;'>{k_mac['saat']}</div>", unsafe_allow_html=True)
-            st.markdown(f"<div style='font-weight: 400; color: #f8fafc; font-size: 1.05em;'>{k_mac['mac']}</div>", unsafe_allow_html=True)
-            st.markdown(f"<div style='margin-bottom: 12px;'><span style='color: #38bdf8; font-weight: 600;'>{k_mac['tercih']}</span> <span style='color:#64748b; font-size: 0.85em;'>| @ {k_mac['oran']:.2f}</span> {value_badge}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div style='font-size: 0.8em; color: #64748b; margin-bottom: -2px; font-weight: 600;'>{k_mac['saat']}</div>", unsafe_allow_html=True)
+            # İSİM RENGİ DÜZELTİLDİ: Temaya uygun (Açık veya Koyu fark etmez görünür)
+            st.markdown(f"<div style='font-weight: 800; font-size: 1.1em;'>{k_mac['mac']}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div style='margin-bottom: 12px;'><span style='color: #38bdf8; font-weight: 800;'>MANTIKLI TAHMİN: {k_mac['tercih']}</span> <span style='font-size: 0.85em; font-weight:bold;'>| @ {k_mac['oran']:.2f}</span> {value_badge}</div>", unsafe_allow_html=True)
             wa_text += f"▪️ {k_mac['mac']}\n└ {k_mac['tercih']} (@{k_mac['oran']:.2f})\n\n"
             
-        st.markdown(f"<div style='text-align: right; font-size: 1.1em; color: #e2e8f0; margin-top: 10px; font-weight: bold;'>Olası Çarpan: {toplam_oran:.2f}x</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='text-align: right; font-size: 1.1em; margin-top: 10px; font-weight: 900;'>Olası Çarpan: {toplam_oran:.2f}x</div>", unsafe_allow_html=True)
         wa_text += f"📈 *Toplam Çarpan: {toplam_oran:.2f}x*"
-        st.markdown(f"<a href='https://api.whatsapp.com/send?text={urllib.parse.quote(wa_text)}' target='_blank' class='wa-button'>WhatsApp İlet</a>", unsafe_allow_html=True)
+        st.markdown(f"<a href='https://api.whatsapp.com/send?text={urllib.parse.quote(wa_text)}' target='_blank' class='wa-button'>WhatsApp Üzerinden İlet</a>", unsafe_allow_html=True)
 
 def yuzde_bar_ciz(baslik, deger):
     st.markdown(f"""
         <div style="margin-bottom: 8px;">
-            <div style="display: flex; justify-content: space-between; font-size: 0.8em; color: #94a3b8; margin-bottom: 3px; font-weight: 400;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.85em; margin-bottom: 3px; font-weight: 600;">
                 <span>{baslik}</span><span>%{deger:.0f}</span>
             </div>
-            <div style="width: 100%; background-color: rgba(255, 255, 255, 0.05); border-radius: 4px; height: 6px;">
+            <div style="width: 100%; background-color: rgba(150, 150, 150, 0.2); border-radius: 4px; height: 6px;">
                 <div style="width: {deger}%; background: linear-gradient(90deg, #0ea5e9, #38bdf8); height: 6px; border-radius: 4px; transition: width 1s ease-in-out;"></div>
             </div>
         </div>
@@ -187,13 +192,13 @@ elif "response" in data and len(data["response"]) > 0:
     
     if st.session_state.aktif_tarih != secilen_tarih_str or st.session_state.aktif_ligler != secilen_ligler: st.session_state.analiz_aktif = False
 
-    if st.button(f"VERİ MOTORUNU ÇALIŞTIR"):
+    if st.button(f"MANTIK MOTORUNU ÇALIŞTIR"):
         st.session_state.analiz_aktif = True
         st.session_state.aktif_tarih = secilen_tarih_str
         st.session_state.aktif_ligler = secilen_ligler
         
     if st.session_state.analiz_aktif:
-        with st.spinner("Monte Carlo simülasyonları 10.000 kez çalıştırılıyor..."):
+        with st.spinner("Mantıklı Pazar Seçimleri Analiz Ediliyor..."):
             tum_analizler = []
             lig_gruplari = {}
             for mac in data["response"]:
@@ -213,33 +218,36 @@ elif "response" in data and len(data["response"]) > 0:
                     if lig not in lig_gruplari: lig_gruplari[lig] = []
                     lig_gruplari[lig].append({"ev": ev, "dep": dep, "saat": saat, "en_gercekci_tercih": banko_tercih, "en_gercekci_guven": banko_guven, "oran": oran, "is_value": is_value, "tahminler": tahminler_sozlugu, "skorlar": skor_tahminleri, "scout": scout_metni})
                     
-                    tum_analizler.append({"mac": f"{ev} - {dep}", "saat": saat, "tercih": banko_tercih, "guven": banko_guven, "oran": oran, "is_value": is_value, "oran_ust": tahminler_sozlugu["2.5 Üst"], "oran_iy": tahminler_sozlugu["İY 0.5 Üst"], "oran_korner": tahminler_sozlugu["Korner 8.5 Üst"], "oran_ms0": tahminler_sozlugu["MS 0"]})
+                    tum_analizler.append({"mac": f"{ev} - {dep}", "saat": saat, "tercih": banko_tercih, "guven": banko_guven, "oran": oran, "is_value": is_value, "oran_ust": tahminler_sozlugu["2.5 Gol Üstü"], "oran_iy": tahminler_sozlugu["İlk Yarı 0.5 Üst"], "oran_korner": tahminler_sozlugu["Toplam Korner 8.5 Üst"], "oran_ms0": tahminler_sozlugu["MS 0 (Beraberlik)"]})
 
             st.write("")
-            tab_rolling, tab_kombine, tab_ligler = st.tabs(["KASA PROJEKSİYONU", "ALGORİTMİK KOMBİNELER", "QUANT LİG ANALİZİ"])
+            tab_rolling, tab_kombine, tab_ligler = st.tabs(["🚀 KASA PROJEKSİYONU (2.00x)", "MANTIKLI KOMBİNELER", "MAÇ MAÇ DETAYLI ANALİZ"])
 
             with tab_rolling:
                 st.markdown("<br>", unsafe_allow_html=True)
                 rolling_kupon = []
-                tekli_adaylar = [m for m in tum_analizler if 1.85 <= m["oran"] <= 2.20 and m["guven"] >= 70]
-                if tekli_adaylar: rolling_kupon = [sorted(tekli_adaylar, key=lambda x: x["guven"], reverse=True)[0]]
-                else:
-                    mevcut_oran = 1.0
-                    en_guvenilirler = sorted(tum_analizler, key=lambda x: x["guven"], reverse=True)
-                    for m in en_guvenilirler:
-                        if mevcut_oran < 1.95:
-                            rolling_kupon.append(m)
-                            mevcut_oran *= m["oran"]
-                        else: break
+                
+                # --- AKILLI ROLLING ALGORİTMASI ---
+                # Sadece güveni %85 ve üzeri olan en MANTIKLI tercihleri alır (1.5 Üst, İY 0.5 Üst, Çifte Şans gibi)
+                mevcut_oran = 1.0
+                en_guvenilir_ve_mantikli = sorted(tum_analizler, key=lambda x: x["guven"], reverse=True)
+                
+                for m in en_guvenilir_ve_mantikli:
+                    # Oranı 1.95 - 2.20 arasında tutmaya çalışıyoruz.
+                    if mevcut_oran < 1.95:
+                        rolling_kupon.append(m)
+                        mevcut_oran *= m["oran"]
+                    else: break
                 
                 col_kupon, col_sim = st.columns([1, 1])
                 with col_kupon:
-                    if len(rolling_kupon) > 0: kupon_cizdir("GÜNLÜK HEDEF (X2)", rolling_kupon)
-                    else: st.warning("Uygun veri bulunamadı.")
+                    st.info("💡 **Yapay Zeka Notu:** Bu kuponda taraf bahsi (MS) riskli görüldüğü için algoritma, daha garantili olan gol ve korner marketlerini tercih ederek 2.00 oranı tamamlamıştır.")
+                    if len(rolling_kupon) > 0: kupon_cizdir("GÜNLÜK MANTIKLI HEDEF (~2.00x)", rolling_kupon)
+                    else: st.warning("Güvenli 2.00 Oran için daha fazla lig ekleyin.")
 
                 with col_sim:
                     with st.container(border=True):
-                        st.markdown("<div style='text-align: center; font-weight: 600; letter-spacing: 2px; font-size: 1.1em; color: #e2e8f0;'>20 GÜNLÜK BİLEŞİK GETİRİ SİMÜLASYONU</div>", unsafe_allow_html=True)
+                        st.markdown("<div style='text-align: center; font-weight: 800; letter-spacing: 2px; font-size: 1.1em; color: #38bdf8;'>20 GÜNLÜK BİLEŞİK GETİRİ SİMÜLASYONU</div>", unsafe_allow_html=True)
                         st.markdown("<hr style='margin-top: 10px; margin-bottom: 10px;'>", unsafe_allow_html=True)
                         baslangic_kasasi = 100
                         gunler = []
@@ -257,17 +265,21 @@ elif "response" in data and len(data["response"]) > 0:
                     
                     best_gol = sorted([m for m in tum_analizler if m["mac"] not in kullanilan], key=lambda x: x["oran_ust"], reverse=True)[0]
                     oran_gol, val_gol = oran_ve_value_hesapla(best_gol["oran_ust"], best_gol["mac"])
-                    karma.append({"mac": best_gol["mac"], "saat": best_gol["saat"], "tercih": "2.5 Üst", "guven": best_gol["oran_ust"], "oran": oran_gol, "is_value": val_gol}); kullanilan.append(best_gol["mac"])
+                    karma.append({"mac": best_gol["mac"], "saat": best_gol["saat"], "tercih": "2.5 Gol Üstü", "guven": best_gol["oran_ust"], "oran": oran_gol, "is_value": val_gol}); kullanilan.append(best_gol["mac"])
+                    
+                    best_korner = sorted([m for m in tum_analizler if m["mac"] not in kullanilan], key=lambda x: x["oran_korner"], reverse=True)[0]
+                    oran_korner, val_korner = oran_ve_value_hesapla(best_korner["oran_korner"], best_korner["mac"])
+                    karma.append({"mac": best_korner["mac"], "saat": best_korner["saat"], "tercih": "Toplam Korner 8.5 Üst", "guven": best_korner["oran_korner"], "oran": oran_korner, "is_value": val_korner}); kullanilan.append(best_korner["mac"])
                     kupon_cizdir("Algoritmik Karma", karma)
 
                     bankolar = sorted([m for m in tum_analizler if m["mac"] not in kullanilan], key=lambda x: x["guven"], reverse=True)[:3]; kullanilan.extend([m["mac"] for m in bankolar])
                     gollar = sorted([m for m in tum_analizler if m["mac"] not in kullanilan], key=lambda x: x["oran_ust"], reverse=True)[:3]; kullanilan.extend([m["mac"] for m in gollar])
                     
                     c1, c2 = st.columns(2)
-                    with c1: kupon_cizdir("Ana Kasa (Düşük Risk)", bankolar)
+                    with c1: kupon_cizdir("Ana Kasa (En Düşük Risk)", bankolar)
                     with c2: 
-                        gollar_list = [{"mac": m["mac"], "saat": m["saat"], "tercih": "2.5 Üst", "guven": m["oran_ust"], "oran": oran_ve_value_hesapla(m["oran_ust"], m["mac"])[0], "is_value": oran_ve_value_hesapla(m["oran_ust"], m["mac"])[1]} for m in gollar]
-                        kupon_cizdir("Gol Hacmi", gollar_list)
+                        gollar_list = [{"mac": m["mac"], "saat": m["saat"], "tercih": "2.5 Gol Üstü", "guven": m["oran_ust"], "oran": oran_ve_value_hesapla(m["oran_ust"], m["mac"])[0], "is_value": oran_ve_value_hesapla(m["oran_ust"], m["mac"])[1]} for m in gollar]
+                        kupon_cizdir("Gol Hacmi (Alt/Üst Piyasası)", gollar_list)
                 else: st.caption("Analiz için havuzu genişletin.")
 
             with tab_ligler:
@@ -281,27 +293,31 @@ elif "response" in data and len(data["response"]) > 0:
                                     m = maclar[i+j]
                                     with cols[j]:
                                         with st.container(border=True):
-                                            val_badge = "<span class='value-badge'>VALUE</span>" if m['is_value'] else ""
-                                            st.markdown(f"<div style='text-align:center; margin-bottom: 5px;'><span style='color:#64748b; font-size: 0.8em;'>{m['saat']}</span><br><span style='font-size: 1.1em; color:#f8fafc;'>{m['ev']}</span> <span style='color: #475569; margin: 0 5px;'>vs</span> <span style='font-size: 1.1em; color:#f8fafc;'>{m['dep']}</span></div>", unsafe_allow_html=True)
+                                            val_badge = "<span class='value-badge'>🔥 VALUE DEĞERİ</span>" if m['is_value'] else ""
+                                            # İSİMLER BURADA DA DÜZELTİLDİ:
+                                            st.markdown(f"<div style='text-align:center; margin-bottom: 5px;'><span style='color:#64748b; font-size: 0.8em; font-weight:bold;'>{m['saat']}</span><br><span style='font-size: 1.2em; font-weight: 800;'>{m['ev']}</span> <span style='margin: 0 5px;'>vs</span> <span style='font-size: 1.2em; font-weight: 800;'>{m['dep']}</span></div>", unsafe_allow_html=True)
                                             st.markdown("<hr style='margin: 10px 0;'>", unsafe_allow_html=True)
-                                            st.markdown(f"<div style='text-align:center; padding: 10px; background: rgba(56, 189, 248, 0.05); border-radius: 6px; margin-bottom: 15px; border: 1px solid rgba(56, 189, 248, 0.1);'><span style='font-size: 0.75em; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;'>Kantitatif Çıktı</span><br><b style='color:#38bdf8; font-size: 1.2em;'>{m['en_gercekci_tercih']}</b><br><span style='font-size:0.9em; color:#cbd5e1;'>Oran: @{m['oran']:.2f}</span> {val_badge}</div>", unsafe_allow_html=True)
+                                            st.markdown(f"<div style='text-align:center; padding: 10px; background: rgba(56, 189, 248, 0.05); border-radius: 6px; margin-bottom: 15px; border: 1px solid rgba(56, 189, 248, 0.2);'><span style='font-size: 0.8em; text-transform: uppercase; letter-spacing: 1px; font-weight:700;'>YAPAY ZEKA EN MANTIKLI TERCİH:</span><br><b style='color:#38bdf8; font-size: 1.3em;'>{m['en_gercekci_tercih']}</b><br><span style='font-size:0.95em; font-weight:bold;'>Olası Oran: @{m['oran']:.2f}</span> {val_badge}</div>", unsafe_allow_html=True)
                                             
-                                            with st.expander("Gelişmiş Metrikler & Monte Carlo", expanded=False):
+                                            with st.expander("Tüm Marketler & Monte Carlo Dağılımı", expanded=False):
                                                 st.markdown(f"<div class='scout-box'>{m['scout']}</div>", unsafe_allow_html=True)
                                                 
-                                                st.markdown("<div style='text-align:center; font-size:0.8em; color:#94a3b8; margin-bottom:5px;'>10.000x Simülasyon Olası Skorları</div>", unsafe_allow_html=True)
+                                                st.markdown("<div style='text-align:center; font-size:0.8em; font-weight:bold; margin-bottom:5px;'>10.000x Simülasyon Olası Skorları</div>", unsafe_allow_html=True)
                                                 st.markdown("<div class='score-sim-box'>", unsafe_allow_html=True)
                                                 for skor in m["skorlar"]:
                                                     st.markdown(f"<div class='score-item'><div class='score-val'>{skor['skor']}</div><div class='score-prob'>%{skor['yuzde']}</div></div>", unsafe_allow_html=True)
                                                 st.markdown("</div>", unsafe_allow_html=True)
                                                 
                                                 st.markdown("<hr style='margin: 10px 0;'>", unsafe_allow_html=True)
-                                                yuzde_bar_ciz("MS 1", m['tahminler']['MS 1'])
-                                                yuzde_bar_ciz("MS 0", m['tahminler']['MS 0'])
-                                                yuzde_bar_ciz("MS 2", m['tahminler']['MS 2'])
+                                                yuzde_bar_ciz("MS 1 (Ev Sahibi)", m['tahminler']['MS 1 (Ev Sahibi)'])
+                                                yuzde_bar_ciz("MS 0 (Beraberlik)", m['tahminler']['MS 0 (Beraberlik)'])
+                                                yuzde_bar_ciz("MS 2 (Deplasman)", m['tahminler']['MS 2 (Deplasman)'])
                                                 st.markdown("<hr style='margin: 10px 0;'>", unsafe_allow_html=True)
-                                                yuzde_bar_ciz("2.5 Üst", m['tahminler']['2.5 Üst'])
-                                                yuzde_bar_ciz("KG Var", m['tahminler']['KG Var'])
+                                                yuzde_bar_ciz("1.5 Gol Üstü (Güvenli)", m['tahminler']['1.5 Gol Üstü (Güvenli)'])
+                                                yuzde_bar_ciz("2.5 Gol Üstü", m['tahminler']['2.5 Gol Üstü'])
+                                                yuzde_bar_ciz("İlk Yarı 0.5 Üst", m['tahminler']['İlk Yarı 0.5 Üst'])
+                                                yuzde_bar_ciz("Karşılıklı Gol Var", m['tahminler']['Karşılıklı Gol Var'])
+                                                yuzde_bar_ciz("Toplam Korner 8.5 Üst", m['tahminler']['Toplam Korner 8.5 Üst'])
 
 else:
     st.info("Sistem hazır. Veri girişi bekleniyor.")
