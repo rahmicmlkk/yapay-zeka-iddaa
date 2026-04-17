@@ -4,9 +4,8 @@ import pandas as pd
 from datetime import datetime, timedelta, date
 from sklearn.ensemble import RandomForestClassifier
 
-# --- YENİ API ŞİFREN ---
+# --- SENİN API ŞİFREN ---
 API_KEY = "18961e393de1214e4595758bbebe08aa"
-VIP_PAROLA = "gerze"
 
 st.set_page_config(page_title="Predict Pro VIP", layout="wide")
 
@@ -17,14 +16,11 @@ st.markdown("""
     .vip-subtitle { text-align: center; color: #888888; font-size: 1em; font-weight: 300; margin-bottom: 30px; letter-spacing: 1px; }
     div.stButton > button { background-color: transparent; border: 1px solid #D4AF37; font-weight: 400; border-radius: 4px; padding: 8px 24px; transition: all 0.3s ease; width: 100%; }
     div.stButton > button:hover { background-color: #D4AF37; color: #111111 !important; }
-    .kilit-buton > button { border: 1px solid #3B82F6; }
-    .kilit-buton > button:hover { background-color: #3B82F6; color: white !important; }
     hr { margin: 1em 0; border-color: #e2e8f0; opacity: 0.2;}
     </style>
 """, unsafe_allow_html=True)
 
 # --- SİSTEM HAFIZASI ---
-if "vip_onay" not in st.session_state: st.session_state.vip_onay = False
 if "analiz_aktif" not in st.session_state: st.session_state.analiz_aktif = False
 if "aktif_tarih" not in st.session_state: st.session_state.aktif_tarih = None
 if "aktif_ligler" not in st.session_state: st.session_state.aktif_ligler = []
@@ -98,7 +94,7 @@ def kupon_cizdir(baslik, kupon_listesi):
         for index, k_mac in enumerate(kupon_listesi):
             st.markdown(f"<span style='color: gray; font-size: 0.9em;'>{k_mac['saat']}</span> &nbsp; **{k_mac['mac']}**", unsafe_allow_html=True)
             st.markdown(f"↳ **{k_mac['tercih']}** <span style='color:#D4AF37; font-size: 0.9em;'>(%{k_mac['guven']:.0f})</span>", unsafe_allow_html=True)
-            st.write("") # Boşluk
+            st.write("") 
         st.caption(f"Ortalama Başarı Beklentisi: %{sum(m['guven'] for m in kupon_listesi)/len(kupon_listesi):.0f}")
 
 def yuzde_bar_ciz(baslik, deger):
@@ -152,63 +148,42 @@ elif "response" in data and len(data["response"]) > 0:
             tab_kombine, tab_ligler, tab_seffaflik = st.tabs(["VIP KOMBİNELER", "LİG ANALİZLERİ", "GEÇMİŞ PERFORMANS"])
 
             with tab_kombine:
-                if not st.session_state.vip_onay:
-                    with st.container(border=True):
-                        st.markdown("<h3 style='text-align: center; font-weight: 300;'>Premium Erişim</h3>", unsafe_allow_html=True)
-                        st.caption("Yapay zeka onaylı sistem kuponlarını görmek için şifrenizi girin.")
-                        girilen_sifre = st.text_input("Şifre", type="password", label_visibility="collapsed", placeholder="Parola...")
-                        st.markdown("<div class='kilit-buton'>", unsafe_allow_html=True)
-                        
-                        if st.button("Kilidi Aç"):
-                            if girilen_sifre == VIP_PAROLA:
-                                st.session_state.vip_onay = True
-                                st.rerun() 
-                            else:
-                                st.error("Hatalı parola.")
-                        st.markdown("</div>", unsafe_allow_html=True)
-                
-                else:
-                    col_b, col_c = st.columns([5, 1])
-                    with col_b: st.caption("Kilit Açık. Hoş geldiniz.")
-                    with col_c:
-                        if st.button("Çıkış Yap"):
-                            st.session_state.vip_onay = False
-                            st.rerun()
+                # Kilit sistemi tamamen kaldırıldı. Kuponlar anında görünür.
+                if len(tum_analizler) >= 5:
+                    karma, kullanilan = [], []
+                    
+                    best_ms = sorted(tum_analizler, key=lambda x: x["guven"], reverse=True)[0]
+                    karma.append({"mac": best_ms["mac"], "saat": best_ms["saat"], "tercih": best_ms["tercih"], "guven": best_ms["guven"]}); kullanilan.append(best_ms["mac"])
+                    
+                    best_gol = sorted([m for m in tum_analizler if m["mac"] not in kullanilan], key=lambda x: x["oran_ust"], reverse=True)[0]
+                    karma.append({"mac": best_gol["mac"], "saat": best_gol["saat"], "tercih": "2.5 Üst", "guven": best_gol["oran_ust"]}); kullanilan.append(best_gol["mac"])
+                    
+                    best_korner = sorted([m for m in tum_analizler if m["mac"] not in kullanilan], key=lambda x: x["oran_korner"], reverse=True)[0]
+                    karma.append({"mac": best_korner["mac"], "saat": best_korner["saat"], "tercih": "Korner 8.5 Üst", "guven": best_korner["oran_korner"]}); kullanilan.append(best_korner["mac"])
+                    
+                    kupon_cizdir("Karma Kupon", karma)
 
-                    if len(tum_analizler) >= 5:
-                        karma, kullanilan = [], []
-                        
-                        best_ms = sorted(tum_analizler, key=lambda x: x["guven"], reverse=True)[0]
-                        karma.append({"mac": best_ms["mac"], "saat": best_ms["saat"], "tercih": best_ms["tercih"], "guven": best_ms["guven"]}); kullanilan.append(best_ms["mac"])
-                        
-                        best_gol = sorted([m for m in tum_analizler if m["mac"] not in kullanilan], key=lambda x: x["oran_ust"], reverse=True)[0]
-                        karma.append({"mac": best_gol["mac"], "saat": best_gol["saat"], "tercih": "2.5 Üst", "guven": best_gol["oran_ust"]}); kullanilan.append(best_gol["mac"])
-                        
-                        best_korner = sorted([m for m in tum_analizler if m["mac"] not in kullanilan], key=lambda x: x["oran_korner"], reverse=True)[0]
-                        karma.append({"mac": best_korner["mac"], "saat": best_korner["saat"], "tercih": "Korner 8.5 Üst", "guven": best_korner["oran_korner"]}); kullanilan.append(best_korner["mac"])
-                        
-                        kupon_cizdir("Karma Kupon", karma)
+                    bankolar = sorted([m for m in tum_analizler if m["mac"] not in kullanilan], key=lambda x: x["guven"], reverse=True)[:3]; kullanilan.extend([m["mac"] for m in bankolar])
+                    gollar = sorted([m for m in tum_analizler if m["mac"] not in kullanilan], key=lambda x: x["oran_ust"], reverse=True)[:3]; kullanilan.extend([m["mac"] for m in gollar])
+                    iy_ler = sorted([m for m in tum_analizler if m["mac"] not in kullanilan], key=lambda x: x["oran_iy"], reverse=True)[:3]; kullanilan.extend([m["mac"] for m in iy_ler])
+                    kornerler = sorted([m for m in tum_analizler if m["mac"] not in kullanilan], key=lambda x: x["oran_korner"], reverse=True)[:3]; kullanilan.extend([m["mac"] for m in kornerler])
+                    surprizler = sorted([m for m in tum_analizler if m["mac"] not in kullanilan], key=lambda x: x["oran_ms0"], reverse=True)[:3]
 
-                        bankolar = sorted([m for m in tum_analizler if m["mac"] not in kullanilan], key=lambda x: x["guven"], reverse=True)[:3]; kullanilan.extend([m["mac"] for m in bankolar])
-                        gollar = sorted([m for m in tum_analizler if m["mac"] not in kullanilan], key=lambda x: x["oran_ust"], reverse=True)[:3]; kullanilan.extend([m["mac"] for m in gollar])
-                        iy_ler = sorted([m for m in tum_analizler if m["mac"] not in kullanilan], key=lambda x: x["oran_iy"], reverse=True)[:3]; kullanilan.extend([m["mac"] for m in iy_ler])
-                        kornerler = sorted([m for m in tum_analizler if m["mac"] not in kullanilan], key=lambda x: x["oran_korner"], reverse=True)[:3]; kullanilan.extend([m["mac"] for m in kornerler])
-                        surprizler = sorted([m for m in tum_analizler if m["mac"] not in kullanilan], key=lambda x: x["oran_ms0"], reverse=True)[:3]
-
-                        c1, c2 = st.columns(2)
-                        with c1: 
-                            kupon_cizdir("Ana Kasa (Güvenli)", bankolar)
-                            kupon_cizdir("İlk Yarı Fırtınası", [{"mac": m["mac"], "saat": m["saat"], "tercih": "İY 0.5 Üst", "guven": m["oran_iy"]} for m in iy_ler])
-                        with c2: 
-                            kupon_cizdir("Gol Şenliği", [{"mac": m["mac"], "saat": m["saat"], "tercih": "2.5 Üst", "guven": m["oran_ust"]} for m in gollar])
-                            kupon_cizdir("Sistem & Sürpriz", [{"mac": m["mac"], "saat": m["saat"], "tercih": "Beraberlik (MS 0)", "guven": m["oran_ms0"]} for m in surprizler])
-                    else: st.caption("Kombineler için yeterli veri yok.")
+                    c1, c2 = st.columns(2)
+                    with c1: 
+                        kupon_cizdir("Ana Kasa (Güvenli)", bankolar)
+                        kupon_cizdir("İlk Yarı Fırtınası", [{"mac": m["mac"], "saat": m["saat"], "tercih": "İY 0.5 Üst", "guven": m["oran_iy"]} for m in iy_ler])
+                    with c2: 
+                        kupon_cizdir("Gol Şenliği", [{"mac": m["mac"], "saat": m["saat"], "tercih": "2.5 Üst", "guven": m["oran_ust"]} for m in gollar])
+                        kupon_cizdir("Sistem & Sürpriz", [{"mac": m["mac"], "saat": m["saat"], "tercih": "Beraberlik (MS 0)", "guven": m["oran_ms0"]} for m in surprizler])
+                else: 
+                    st.caption("Kombineler için yeterli veri yok.")
 
             with tab_ligler:
                 st.markdown("<br>", unsafe_allow_html=True)
                 for lig, maclar in lig_gruplari.items():
                     with st.expander(f"{lig} ({len(maclar)} Maç)"):
-                        for i in range(0, len(maclar), 2): # Daha sade görünüm için yan yana 2 kutu
+                        for i in range(0, len(maclar), 2):
                             cols = st.columns(2)
                             for j in range(2):
                                 if i+j < len(maclar):
@@ -220,7 +195,6 @@ elif "response" in data and len(data["response"]) > 0:
                                             st.markdown(f"<div style='text-align:center;'>Optimum Tercih:<br><b style='color:#D4AF37;'>{m['en_gercekci_tercih']}</b></div>", unsafe_allow_html=True)
                                             
                                             with st.expander("Detaylı Olasılıklar"):
-                                                # YENİ SADE GÖRSELLEŞTİRME (BARLAR)
                                                 yuzde_bar_ciz("Ev Sahibi (MS 1)", m['tahminler']['MS 1'])
                                                 yuzde_bar_ciz("Deplasman (MS 2)", m['tahminler']['MS 2'])
                                                 st.write("")
