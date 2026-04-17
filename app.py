@@ -3,29 +3,28 @@ import requests
 import pandas as pd
 import urllib.parse
 import hashlib
+import random
 from datetime import datetime, timedelta, date
 from sklearn.ensemble import RandomForestClassifier
 
 # --- SENİN API ŞİFREN ---
 API_KEY = "18961e393de1214e4595758bbebe08aa"
 
-st.set_page_config(page_title="Predict Pro VIP | Deep Learning", layout="wide")
+st.set_page_config(page_title="Predict Pro VIP | Yeraltı Terminali", layout="wide", initial_sidebar_state="expanded")
 
-# --- ZARİF VE MODERN TASARIM (ELEGANT UI) ---
+# --- HACKER / İSTİHBARAT TASARIMI ---
 st.markdown("""
     <style>
-    .elegant-title { text-align: center; font-family: 'Helvetica Neue', sans-serif; font-size: 2.2em; font-weight: 200; letter-spacing: 6px; margin-bottom: 0px; padding-top: 10px; }
-    .elegant-subtitle { text-align: center; color: #718096; font-size: 0.9em; font-weight: 300; letter-spacing: 3px; margin-bottom: 40px; }
-    div.stButton > button { background-color: transparent; border: 1px solid #cbd5e1; font-weight: 300; letter-spacing: 1px; border-radius: 6px; padding: 8px 24px; transition: all 0.4s ease; width: 100%; }
-    div.stButton > button:hover { border-color: #6366f1; color: #6366f1 !important; background-color: rgba(99, 102, 241, 0.05); }
-    hr { margin: 1.5em 0; border: none; height: 1px; background: linear-gradient(90deg, rgba(200,200,200,0) 0%, rgba(200,200,200,0.5) 50%, rgba(200,200,200,0) 100%); }
-    .wa-button { display: block; text-align: center; background-color: #25D366; color: white !important; padding: 10px; border-radius: 6px; text-decoration: none; font-weight: 600; letter-spacing: 1px; margin-top: 15px; transition: background-color 0.3s; }
-    .wa-button:hover { background-color: #128C7E; color: white !important;}
+    .elegant-title { text-align: center; font-family: 'Courier New', Courier, monospace; font-size: 2.2em; font-weight: 800; letter-spacing: 4px; margin-bottom: 0px; padding-top: 10px; color: #10b981; text-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
+    .elegant-subtitle { text-align: center; color: #94a3b8; font-family: 'Courier New', Courier, monospace; font-size: 1em; font-weight: 600; letter-spacing: 2px; margin-bottom: 40px; }
+    div.stButton > button { background-color: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; font-weight: bold; letter-spacing: 1px; border-radius: 4px; padding: 8px 24px; transition: all 0.4s ease; width: 100%; color: #10b981 !important; font-family: 'Courier New', Courier, monospace;}
+    div.stButton > button:hover { background-color: #10b981; color: #000 !important; box-shadow: 0 0 15px rgba(16, 185, 129, 0.8); }
+    hr { margin: 1.5em 0; border: none; height: 1px; background: linear-gradient(90deg, rgba(16,185,129,0) 0%, rgba(16,185,129,0.5) 50%, rgba(16,185,129,0) 100%); }
+    .wa-button { display: block; text-align: center; background-color: #25D366; color: white !important; padding: 10px; border-radius: 4px; text-decoration: none; font-weight: 600; letter-spacing: 1px; margin-top: 15px; font-family: sans-serif; }
     .value-badge { background-color: #f59e0b; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7em; font-weight: bold; margin-left: 5px; }
-    .rolling-box { border-left: 4px solid #10b981; margin-bottom: 20px; background-color: rgba(16, 185, 129, 0.05); padding: 15px; border-radius: 0 6px 6px 0; }
-    .ai-choice { text-align: center; font-weight: bold; color: #10b981; font-size: 1.2em; letter-spacing: 1px; margin-bottom: 10px;}
-    .chaos-box { background-color: #0f172a; color: #e2e8f0; padding: 10px; border-radius: 6px; font-size: 0.8em; text-align: center; border: 1px solid #334155; }
-    .chaos-title { color: #818cf8; font-weight: 600; letter-spacing: 1px; margin-bottom: 5px; font-size: 0.9em; }
+    .insider-badge { display: inline-block; background-color: #ef4444; color: white; padding: 5px 10px; border-radius: 4px; font-size: 0.8em; font-weight: bold; margin-top: 10px; animation: blinker 1.5s linear infinite; }
+    @keyframes blinker { 50% { opacity: 0.2; } }
+    .terminal-box { background-color: #000; color: #0f0; font-family: 'Courier New', Courier, monospace; font-size: 0.8em; padding: 15px; border-radius: 5px; border: 1px solid #333; height: 300px; overflow-y: hidden; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -34,8 +33,29 @@ if "analiz_aktif" not in st.session_state: st.session_state.analiz_aktif = False
 if "aktif_tarih" not in st.session_state: st.session_state.aktif_tarih = None
 if "aktif_ligler" not in st.session_state: st.session_state.aktif_ligler = []
 
-st.markdown("<h1 class='elegant-title'>PREDICT PRO</h1>", unsafe_allow_html=True)
-st.markdown("<p class='elegant-subtitle'>DEEP LEARNING & CHAOS THEORY ENGINE</p>", unsafe_allow_html=True)
+# --- SOL MENÜ: HACKER TERMİNALİ ŞOVU ---
+with st.sidebar:
+    st.markdown("<h3 style='color:#10b981; font-family: Courier New;'>📡 SİSTEM GÜNLÜĞÜ</h3>", unsafe_allow_html=True)
+    st.markdown("""
+        <div class="terminal-box">
+        root@predict-pro:~# connect --target asian_markets<br>
+        [OK] Bypassing Bet365 Firewalls...<br>
+        [OK] Establishing secure tunnel...<br>
+        [!] Fetching underground volume data...<br>
+        [OK] 4.2 TB data decrypted.<br>
+        root@predict-pro:~# run deep_learning.py<br>
+        [OK] Loading Chaos Theory matrices...<br>
+        [OK] Referee behaviors injected.<br>
+        [!] WARNING: Suspicious bets detected in lower leagues.<br>
+        root@predict-pro:~# ready for execution.
+        </div>
+    """, unsafe_allow_html=True)
+    st.write("---")
+    st.caption("🔒 Bağlantı Şifreli: 256-bit AES")
+    st.caption("📍 Sunucu Konumu: Gizli")
+
+st.markdown("<h1 class='elegant-title'>PREDICT PRO // ROOT</h1>", unsafe_allow_html=True)
+st.markdown("<p class='elegant-subtitle'>ASIAN MARKET INSIDER & DEEP LEARNING TERMINAL</p>", unsafe_allow_html=True)
 
 # --- YAPAY ZEKA MODELİ ---
 @st.cache_resource 
@@ -69,29 +89,21 @@ def oran_ve_value_hesapla(guven, takimlar_str):
     is_value = (guven - iddaa_ihtimali) > 4 
     return oran, is_value
 
-# YENİ: KAOS ANALİZİ (DEEP LEARNING FAKTÖRLERİ) ÜRETİCİ
 def kaos_faktoru_uret(mac_ismi):
-    # Maç isminden benzersiz ama o maça özel sabit bir sayı üretir
     sayi = int(hashlib.md5(mac_ismi.encode()).hexdigest(), 16)
+    havalar = ["☀️ Açık", "🌧️ Sağanak", "☁️ Rüzgarlı", "❄️ Sert Zemin"]
+    hakemler = ["🟨 4.5 Kart (Sert)", "🟩 2.1 Kart (Ilıman)", "🟥 Kırmızı Potansiyelli", "⚖️ Standart"]
+    yorgunluk = ["🟢 İki Takım Dinç", "🔴 Ev Sahibi Yorgun", "🔴 Deplasman Yorgun", "🟡 Fikstür Sıkışık"]
     
-    havalar = ["☀️ Açık / İdeal", "🌧️ Sağanak / Islak", "☁️ Kapalı / Rüzgarlı", "❄️ Soğuk / Sert Zemin"]
-    hakemler = ["🟨 4.5 Kart/Maç (Sert)", "🟩 2.1 Kart/Maç (Ilıman)", "🟥 Kırmızı Potansiyelli", "⚖️ Standart Yönetim"]
-    yorgunluk = ["🟢 İki Takım da Dinç", "🔴 Ev Sahibi Yorgun (-3 Gün)", "🔴 Deplasman Yorgun (-3 Gün)", "🟡 Fikstür Sıkışık"]
+    # ŞOV ÖZELLİĞİ: "Şikeli Maç" Radarı (Her 15 maçtan 1'inde tetiklenir)
+    is_insider = (sayi % 15) == 0
     
-    return {
-        "hava": havalar[sayi % len(havalar)],
-        "hakem": hakemler[(sayi // 10) % len(hakemler)],
-        "yorgunluk": yorgunluk[(sayi // 100) % len(yorgunluk)]
-    }
+    return {"hava": havalar[sayi % len(havalar)], "hakem": hakemler[(sayi // 10) % len(hakemler)], "yorgunluk": yorgunluk[(sayi // 100) % len(yorgunluk)], "is_insider": is_insider}
 
 def tum_tahminleri_hesapla(ev_guc, dep_guc, ev_form, dep_form, model, mac_ismi):
     tahminler = {}
     kaos = kaos_faktoru_uret(mac_ismi)
-    
-    # Kaos faktörlerinin ihtimallere minimal etkisi (Simülasyon)
-    kaos_etkisi = 0
-    if "Yağış" in kaos["hava"]: kaos_etkisi -= 5 # Yağmurda gol azalır
-    if "Yorgun" in kaos["yorgunluk"]: kaos_etkisi -= 3
+    kaos_etkisi = -5 if "Yağış" in kaos["hava"] else (-3 if "Yorgun" in kaos["yorgunluk"] else 0)
     
     if model:
         olasilik = model.predict_proba([[ev_guc, dep_guc, ev_form, dep_form]])[0]
@@ -113,45 +125,38 @@ def tum_tahminleri_hesapla(ev_guc, dep_guc, ev_form, dep_form, model, mac_ismi):
 
 def kupon_cizdir(baslik, kupon_listesi, ai_secimi=False):
     with st.container(border=True):
-        if ai_secimi:
-            st.markdown(f"<div class='ai-choice'>🤖 YAPAY ZEKA GÜNÜN SEÇİMİ</div>", unsafe_allow_html=True)
-        else:
-            st.markdown(f"<div style='text-align: center; font-weight: 300; letter-spacing: 1.5px; font-size: 1.1em; color: #6366f1;'>{baslik.upper()}</div>", unsafe_allow_html=True)
-        
+        if ai_secimi: st.markdown(f"<div class='ai-choice'>🤖 ALGORİTMA OTONOM SEÇİMİ</div>", unsafe_allow_html=True)
+        else: st.markdown(f"<div style='text-align: center; font-weight: 800; letter-spacing: 1.5px; font-size: 1.1em; color: #10b981; font-family: Courier New;'>{baslik.upper()}</div>", unsafe_allow_html=True)
         st.markdown("<hr style='margin-top: 5px; margin-bottom: 15px;'>", unsafe_allow_html=True)
-        
-        if not kupon_listesi:
-            st.caption("Veri yetersizliği nedeniyle filtre uygulandı.")
-            return
+        if not kupon_listesi: return
             
         toplam_oran = 1.0
-        wa_text = f"💎 *PREDICT PRO VIP - {baslik}* 💎\n\n"
+        wa_text = f"🏴‍☠️ *PREDICT PRO - {baslik}* 🏴‍☠️\n\n"
         
-        for index, k_mac in enumerate(kupon_listesi):
+        for k_mac in kupon_listesi:
             toplam_oran *= k_mac['oran']
             value_badge = "<span class='value-badge'>🔥 VALUE</span>" if k_mac.get('is_value', False) else ""
-            wa_value_icon = "🔥 " if k_mac.get('is_value', False) else ""
+            insider_badge = "<div class='insider-badge'>🚨 ANORMAL PARA GİRİŞİ TESPİT EDİLDİ</div>" if k_mac.get('is_insider', False) else ""
             
             st.markdown(f"<div style='font-size: 0.85em; color: #94a3b8; margin-bottom: -5px;'>{k_mac['saat']}</div>", unsafe_allow_html=True)
             st.markdown(f"<div style='font-weight: 500;'>{k_mac['mac']}</div>", unsafe_allow_html=True)
-            st.markdown(f"<div style='margin-bottom: 12px;'><span style='color: #10b981; font-weight: 600;'>{k_mac['tercih']}</span> <span style='color:#94a3b8; font-size: 0.85em;'>| Global Oran: {k_mac['oran']:.2f}</span> {value_badge}</div>", unsafe_allow_html=True)
-            wa_text += f"⚽ {k_mac['mac']}\n👉 Tahmin: {k_mac['tercih']} {wa_value_icon}\n📈 Oran: {k_mac['oran']:.2f}\n\n"
+            st.markdown(f"<div style='margin-bottom: 5px;'><span style='color: #10b981; font-weight: 600;'>{k_mac['tercih']}</span> <span style='color:#94a3b8; font-size: 0.85em;'>| Oran: {k_mac['oran']:.2f}</span> {value_badge}</div>", unsafe_allow_html=True)
+            if insider_badge: st.markdown(insider_badge, unsafe_allow_html=True)
+            st.write("")
+            wa_text += f"⚽ {k_mac['mac']}\n👉 Tahmin: {k_mac['tercih']}\n📈 Oran: {k_mac['oran']:.2f}\n\n"
             
-        st.markdown(f"<div style='text-align: right; font-size: 1.2em; color: #333; margin-top: 10px; font-weight: bold;'>Net Oran: {toplam_oran:.2f}</div>", unsafe_allow_html=True)
-        
+        st.markdown(f"<div style='text-align: right; font-size: 1.2em; color: #10b981; margin-top: 10px; font-weight: bold;'>Net Oran: {toplam_oran:.2f}</div>", unsafe_allow_html=True)
         wa_text += f"💵 *Kupon Toplam Oranı: {toplam_oran:.2f}*"
-        wa_link = f"https://api.whatsapp.com/send?text={urllib.parse.quote(wa_text)}"
-        st.markdown(f"<a href='{wa_link}' target='_blank' class='wa-button'>📲 WhatsApp'ta Paylaş</a>", unsafe_allow_html=True)
+        st.markdown(f"<a href='https://api.whatsapp.com/send?text={urllib.parse.quote(wa_text)}' target='_blank' class='wa-button'>📲 WhatsApp'a Sızdır (Paylaş)</a>", unsafe_allow_html=True)
 
 def yuzde_bar_ciz(baslik, deger):
     st.markdown(f"""
         <div style="margin-bottom: 8px;">
             <div style="display: flex; justify-content: space-between; font-size: 0.8em; color: gray; margin-bottom: 3px; font-weight: 300;">
-                <span>{baslik}</span>
-                <span>%{deger:.0f}</span>
+                <span>{baslik}</span><span>%{deger:.0f}</span>
             </div>
-            <div style="width: 100%; background-color: rgba(128, 128, 128, 0.15); border-radius: 10px; height: 5px;">
-                <div style="width: {deger}%; background-color: #6366f1; height: 5px; border-radius: 10px; transition: width 1s ease-in-out;"></div>
+            <div style="width: 100%; background-color: rgba(16, 185, 129, 0.1); border-radius: 2px; height: 5px;">
+                <div style="width: {deger}%; background-color: #10b981; height: 5px; border-radius: 2px; transition: width 1s ease-in-out;"></div>
             </div>
         </div>
     """, unsafe_allow_html=True)
@@ -170,18 +175,17 @@ elif "response" in data and len(data["response"]) > 0:
     bugunun_ligleri = sorted(list(set([mac["league"]["name"] for mac in data["response"]])))
     genis_havuz = ["Süper Lig", "1. Lig", "2. Lig", "Cup", "Türkiye Kupası", "Premier League", "La Liga", "Serie A", "Bundesliga", "Ligue 1", "UEFA Champions League", "UEFA Europa League", "UEFA Europa Conference League", "Championship", "Eredivisie", "Primeira Liga", "Brasileiro Série A", "MLS", "Saudi Pro League"]
     varsayilan_secimler = [l for l in genis_havuz if l in bugunun_ligleri] or bugunun_ligleri[:10]
-    
-    secilen_ligler = st.multiselect(f"Veri Havuzu ({secilen_tarih_str})", options=bugunun_ligleri, default=varsayilan_secimler)
+    secilen_ligler = st.multiselect(f"Ağlara Sızılacak Ligler ({secilen_tarih_str})", options=bugunun_ligleri, default=varsayilan_secimler)
     
     if st.session_state.aktif_tarih != secilen_tarih_str or st.session_state.aktif_ligler != secilen_ligler: st.session_state.analiz_aktif = False
 
-    if st.button(f"DERİN ÖĞRENMEYİ BAŞLAT"):
+    if st.button(f"> SİSTEMİ BAŞLAT / EXECUTE"):
         st.session_state.analiz_aktif = True
         st.session_state.aktif_tarih = secilen_tarih_str
         st.session_state.aktif_ligler = secilen_ligler
         
     if st.session_state.analiz_aktif:
-        with st.spinner("Yapay Zeka Büyük Veriyi (Kaos, İklim, Oranlar) işliyor..."):
+        with st.spinner("Şifreli veritabanlarına sızılıyor... Lütfen Bekleyin."):
             tum_analizler = []
             lig_gruplari = {}
             for mac in data["response"]:
@@ -194,26 +198,21 @@ elif "response" in data and len(data["response"]) > 0:
                     mac_ismi_str = f"{ev} - {dep}"
                     
                     tahminler_sozlugu, banko_tercih, banko_guven, kaos_raporu = tum_tahminleri_hesapla(guc1, guc2, f1, f2, yapay_zeka, mac_ismi_str)
-                    
                     oran, is_value = oran_ve_value_hesapla(banko_guven, mac_ismi_str)
                     
                     if lig not in lig_gruplari: lig_gruplari[lig] = []
                     lig_gruplari[lig].append({"ev": ev, "dep": dep, "saat": saat, "en_gercekci_tercih": banko_tercih, "en_gercekci_guven": banko_guven, "oran": oran, "is_value": is_value, "tahminler": tahminler_sozlugu, "kaos": kaos_raporu})
                     
-                    tum_analizler.append({"mac": mac_ismi_str, "saat": saat, "tercih": banko_tercih, "guven": banko_guven, "oran": oran, "is_value": is_value, "oran_ust": tahminler_sozlugu["2.5 Üst"], "oran_iy": tahminler_sozlugu["İY 0.5 Üst"], "oran_korner": tahminler_sozlugu["Korner 8.5 Üst"], "oran_ms0": tahminler_sozlugu["MS 0"]})
+                    tum_analizler.append({"mac": mac_ismi_str, "saat": saat, "tercih": banko_tercih, "guven": banko_guven, "oran": oran, "is_value": is_value, "is_insider": kaos_raporu["is_insider"], "oran_ust": tahminler_sozlugu["2.5 Üst"], "oran_iy": tahminler_sozlugu["İY 0.5 Üst"], "oran_korner": tahminler_sozlugu["Korner 8.5 Üst"], "oran_ms0": tahminler_sozlugu["MS 0"]})
 
             st.write("")
-            tab_rolling, tab_kombine, tab_ligler, tab_seffaflik = st.tabs(["🚀 KASA KATLAMA", "STRATEJİ KOMBİNELERİ", "DERİN ÖĞRENME (LİGLER)", "SİSTEM PERFORMANSI"])
+            tab_rolling, tab_kombine, tab_ligler = st.tabs(["🚀 OTONOM", "🏴‍☠️ SIZILAN KUPONLAR", "🧠 DERİN ANALİZ"])
 
             with tab_rolling:
                 st.markdown("<br>", unsafe_allow_html=True)
-                st.markdown("<div class='rolling-box'><h3 style='margin:0; color:#065f46;'>🎯 Otonom %100 Büyüme Stratejisi</h3><p style='margin-top:5px; margin-bottom:0; font-size:0.9em; color:#047857;'>Yapay Zeka, tüm bülteni analiz ederek bugün kasa katlama serisine uygun <b>~2.00 Oranlı</b> spesifik bir seçim yaptı. Tekli veya en güvenilir akıllı kombinasyon.</p></div>", unsafe_allow_html=True)
-                
                 rolling_kupon = []
                 tekli_adaylar = [m for m in tum_analizler if 1.85 <= m["oran"] <= 2.20 and m["guven"] >= 70]
-                
-                if tekli_adaylar:
-                    rolling_kupon = [sorted(tekli_adaylar, key=lambda x: x["guven"], reverse=True)[0]]
+                if tekli_adaylar: rolling_kupon = [sorted(tekli_adaylar, key=lambda x: x["guven"], reverse=True)[0]]
                 else:
                     mevcut_oran = 1.0
                     en_guvenilirler = sorted(tum_analizler, key=lambda x: x["guven"], reverse=True)
@@ -221,62 +220,39 @@ elif "response" in data and len(data["response"]) > 0:
                         if mevcut_oran < 1.95:
                             rolling_kupon.append(m)
                             mevcut_oran *= m["oran"]
-                        else:
-                            break
+                        else: break
                 
                 col_kupon, col_sim = st.columns([1, 1])
                 with col_kupon:
-                    if len(rolling_kupon) > 0:
-                        kupon_cizdir("GÜNÜN ROLLING HEDEFİ", rolling_kupon, ai_secimi=True)
-                    else:
-                        st.warning("Bugün 2.00 oranı tamamlayacak yeterli güvenilir veri bulunamadı.")
+                    if len(rolling_kupon) > 0: kupon_cizdir("GÜNÜN ROLLING HEDEFİ", rolling_kupon, ai_secimi=True)
+                    else: st.warning("Hedef oran bulunamadı.")
 
                 with col_sim:
                     with st.container(border=True):
-                        st.markdown("<div style='text-align: center; font-weight: 300; letter-spacing: 1.5px; font-size: 1.1em; color: #6366f1;'>20 GÜNLÜK MİLYONER SİMÜLASYONU</div>", unsafe_allow_html=True)
-                        st.markdown("<hr style='margin-top: 10px; margin-bottom: 10px;'>", unsafe_allow_html=True)
-                        
+                        st.markdown("<div style='text-align: center; font-weight: 800; letter-spacing: 1.5px; font-size: 1.1em; color: #10b981; font-family: Courier New;'>PROJEKSİYON</div>", unsafe_allow_html=True)
                         baslangic_kasasi = 100
                         gunler = []
                         kasa = baslangic_kasasi
                         for gun in range(1, 21):
-                            gunler.append({"Gün": f"{gun}. Gün", "Yatırılan": f"{int(kasa):,} ₺", "Hedeflenen": f"{int(kasa*2):,} ₺"})
+                            gunler.append({"Gün": f"{gun}. Gün", "Yatırılan": f"{int(kasa):,} ₺", "Hedef": f"{int(kasa*2):,} ₺"})
                             kasa *= 2
-                            
-                        df_simulasyon = pd.DataFrame(gunler)
-                        st.dataframe(df_simulasyon, hide_index=True, use_container_width=True, height=250)
-                        st.success(f"💰 20. Günün Sonundaki Hedef Bakiye: **104.857.600 ₺**")
+                        st.dataframe(pd.DataFrame(gunler), hide_index=True, use_container_width=True, height=250)
 
             with tab_kombine:
                 st.write("")
                 if len(tum_analizler) >= 5:
+                    insider_maclar = [m for m in tum_analizler if m["is_insider"]]
+                    if insider_maclar:
+                        kupon_cizdir("🚨 YERALTI İSTİHBARATI (ŞÜPHELİ HACİM)", insider_maclar)
+                
                     karma, kullanilan = [], []
                     best_ms = sorted(tum_analizler, key=lambda x: x["guven"], reverse=True)[0]; karma.append(best_ms); kullanilan.append(best_ms["mac"])
                     
                     best_gol = sorted([m for m in tum_analizler if m["mac"] not in kullanilan], key=lambda x: x["oran_ust"], reverse=True)[0]
                     oran_gol, val_gol = oran_ve_value_hesapla(best_gol["oran_ust"], best_gol["mac"])
                     karma.append({"mac": best_gol["mac"], "saat": best_gol["saat"], "tercih": "2.5 Üst", "guven": best_gol["oran_ust"], "oran": oran_gol, "is_value": val_gol}); kullanilan.append(best_gol["mac"])
-                    
-                    best_korner = sorted([m for m in tum_analizler if m["mac"] not in kullanilan], key=lambda x: x["oran_korner"], reverse=True)[0]
-                    oran_korner, val_korner = oran_ve_value_hesapla(best_korner["oran_korner"], best_korner["mac"])
-                    karma.append({"mac": best_korner["mac"], "saat": best_korner["saat"], "tercih": "Korner 8.5 Üst", "guven": best_korner["oran_korner"], "oran": oran_korner, "is_value": val_korner}); kullanilan.append(best_korner["mac"])
-                    
                     kupon_cizdir("Optimum Karma", karma)
-
-                    bankolar = sorted([m for m in tum_analizler if m["mac"] not in kullanilan], key=lambda x: x["guven"], reverse=True)[:3]; kullanilan.extend([m["mac"] for m in bankolar])
-                    gollar = sorted([m for m in tum_analizler if m["mac"] not in kullanilan], key=lambda x: x["oran_ust"], reverse=True)[:3]; kullanilan.extend([m["mac"] for m in gollar])
-                    
-                    c1, c2 = st.columns(2)
-                    with c1: 
-                        kupon_cizdir("Ana Kasa (Güvenli)", bankolar)
-                    with c2: 
-                        gollar_list = []
-                        for m in gollar:
-                            o, v = oran_ve_value_hesapla(m["oran_ust"], m["mac"])
-                            gollar_list.append({"mac": m["mac"], "saat": m["saat"], "tercih": "2.5 Üst", "guven": m["oran_ust"], "oran": o, "is_value": v})
-                        kupon_cizdir("Gol Şenliği", gollar_list)
-                else: 
-                    st.caption("Kombineler için lig seçim kutusundan daha fazla lig ekleyin.")
+                else: st.caption("Kombineler için lig seçim kutusundan daha fazla lig ekleyin.")
 
             with tab_ligler:
                 st.markdown("<br>", unsafe_allow_html=True)
@@ -289,20 +265,14 @@ elif "response" in data and len(data["response"]) > 0:
                                     m = maclar[i+j]
                                     with cols[j]:
                                         with st.container(border=True):
+                                            insider_badge = "<div class='insider-badge'>🚨 ANORMAL PARA GİRİŞİ</div>" if m['kaos'].get('is_insider', False) else ""
                                             st.markdown(f"<div style='text-align:center; margin-bottom: 10px;'><span style='color:#94a3b8; font-size: 0.8em; letter-spacing: 1px;'>{m['saat']}</span><br><span style='font-size: 1.1em; font-weight: 400;'>{m['ev']}</span> <span style='color: #cbd5e1; margin: 0 5px;'>vs</span> <span style='font-size: 1.1em; font-weight: 400;'>{m['dep']}</span></div>", unsafe_allow_html=True)
+                                            if insider_badge: st.markdown(f"<div style='text-align:center;'>{insider_badge}</div>", unsafe_allow_html=True)
                                             st.markdown("<hr style='margin: 10px 0;'>", unsafe_allow_html=True)
                                             val_badge = "<span class='value-badge'>🔥 VALUE</span>" if m['is_value'] else ""
-                                            st.markdown(f"<div style='text-align:center; padding: 8px; background-color: rgba(99, 102, 241, 0.05); border-radius: 6px; margin-bottom: 10px;'><span style='font-size: 0.8em; color: gray;'>Model Tavsiyesi</span><br><b style='color:#6366f1; font-size: 1.1em;'>{m['en_gercekci_tercih']}</b><br><span style='font-size:0.9em; color:#333; font-weight:bold;'>Global Oran: {m['oran']:.2f}</span> {val_badge}</div>", unsafe_allow_html=True)
+                                            st.markdown(f"<div style='text-align:center; padding: 8px; background-color: rgba(16, 185, 129, 0.05); border-radius: 6px; margin-bottom: 10px;'><span style='font-size: 0.8em; color: gray;'>Algoritma Çıktısı</span><br><b style='color:#10b981; font-size: 1.1em;'>{m['en_gercekci_tercih']}</b><br><span style='font-size:0.9em; color:#333; font-weight:bold;'>Oran: {m['oran']:.2f}</span> {val_badge}</div>", unsafe_allow_html=True)
                                             
-                                            # YENİ: KAOS MOTORU GÖRSELLERİ
-                                            with st.expander("🧠 Derin Öğrenme & Kaos Metrikleri", expanded=False):
-                                                st.markdown("<div class='chaos-title'>Çevresel ve Fiziksel Faktörler</div>", unsafe_allow_html=True)
-                                                c_hava, c_hakem, c_yorgun = st.columns(3)
-                                                with c_hava: st.markdown(f"<div class='chaos-box'>{m['kaos']['hava']}</div>", unsafe_allow_html=True)
-                                                with c_hakem: st.markdown(f"<div class='chaos-box'>{m['kaos']['hakem']}</div>", unsafe_allow_html=True)
-                                                with c_yorgun: st.markdown(f"<div class='chaos-box'>{m['kaos']['yorgunluk']}</div>", unsafe_allow_html=True)
-                                                
-                                                st.markdown("<hr style='margin: 10px 0;'>", unsafe_allow_html=True)
+                                            with st.expander("Gelişmiş Metrikler", expanded=False):
                                                 yuzde_bar_ciz("Ev Sahibi (MS 1)", m['tahminler']['MS 1'])
                                                 yuzde_bar_ciz("Beraberlik (MS 0)", m['tahminler']['MS 0'])
                                                 yuzde_bar_ciz("Deplasman (MS 2)", m['tahminler']['MS 2'])
@@ -310,25 +280,5 @@ elif "response" in data and len(data["response"]) > 0:
                                                 yuzde_bar_ciz("2.5 Üst", m['tahminler']['2.5 Üst'])
                                                 yuzde_bar_ciz("Karşılıklı Gol Var", m['tahminler']['KG Var'])
 
-            with tab_seffaflik:
-                st.markdown("<br>", unsafe_allow_html=True)
-                s1, s2, s3, s4 = st.columns(4)
-                s1.metric("Analiz Edilen Eşleşme", "452")
-                s2.metric("Genel İsabet", "%80")
-                s3.metric("Optimum Tercih İsabeti", "%88")
-                s4.metric("Kombine Başarısı", "14/20")
-                st.write("---")
-                
-                gecmis_veriler = [
-                    {"tarih": (date.today() - timedelta(days=1)).strftime("%d.%m.%Y"), "tip": "Ana Kasa", "durum": "Kazandı", "renk": "#10b981", "maclar": [{"isim": "Real Madrid - Barcelona", "tahmin": "1.5 Üst", "skor": "3-1", "sonuc": "Tuttu"}, {"isim": "Arsenal - Chelsea", "tahmin": "2.5 Üst", "skor": "2-2", "sonuc": "Tuttu"}]}, 
-                    {"tarih": (date.today() - timedelta(days=2)).strftime("%d.%m.%Y"), "tip": "Karma", "durum": "Kaybetti", "renk": "#ef4444", "maclar": [{"isim": "Galatasaray - Fenerbahçe", "tahmin": "KG Var", "skor": "0-0", "sonuc": "Yattı"}, {"isim": "Liverpool - Man City", "tahmin": "2.5 Üst", "skor": "2-1", "sonuc": "Tuttu"}]}
-                ]
-                
-                for k in gecmis_veriler:
-                    with st.expander(f"{k['tarih']} | {k['tip']} - {k['durum']}"):
-                        st.markdown(f"<span style='color: {k['renk']}; font-weight: 500; letter-spacing: 1px;'>{k['durum'].upper()}</span>", unsafe_allow_html=True)
-                        st.markdown("<hr style='margin: 5px 0 10px 0;'>", unsafe_allow_html=True)
-                        for m in k["maclar"]:
-                            st.write(f"• **{m['isim']}** \n&nbsp;&nbsp;&nbsp;&nbsp;Tahmin: {m['tahmin']} | Skor: {m['skor']} → _{m['sonuc']}_")
 else:
-    st.info("Bu tarihte henüz analiz edilebilir maç verisi bulunmuyor.")
+    st.info("Terminal çevrimdışı. Veri bulunamadı.")
