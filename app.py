@@ -21,7 +21,8 @@ st.markdown("""
     .wa-button { display: block; text-align: center; background-color: #25D366; color: white !important; padding: 10px; border-radius: 6px; text-decoration: none; font-weight: 600; letter-spacing: 1px; margin-top: 15px; transition: background-color 0.3s; }
     .wa-button:hover { background-color: #128C7E; color: white !important;}
     .value-badge { background-color: #f59e0b; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7em; font-weight: bold; margin-left: 5px; }
-    .rolling-box { border-left: 4px solid #10b981; padding-left: 15px; margin-bottom: 20px; background-color: rgba(16, 185, 129, 0.05); padding: 15px; border-radius: 0 6px 6px 0; }
+    .rolling-box { border-left: 4px solid #10b981; margin-bottom: 20px; background-color: rgba(16, 185, 129, 0.05); padding: 15px; border-radius: 0 6px 6px 0; }
+    .ai-choice { text-align: center; font-weight: bold; color: #10b981; font-size: 1.2em; letter-spacing: 1px; margin-bottom: 10px;}
     </style>
 """, unsafe_allow_html=True)
 
@@ -31,7 +32,7 @@ if "aktif_tarih" not in st.session_state: st.session_state.aktif_tarih = None
 if "aktif_ligler" not in st.session_state: st.session_state.aktif_ligler = []
 
 st.markdown("<h1 class='elegant-title'>PREDICT PRO</h1>", unsafe_allow_html=True)
-st.markdown("<p class='elegant-subtitle'>DATA-DRIVEN INTELLIGENCE & ROLLING STRATEGY</p>", unsafe_allow_html=True)
+st.markdown("<p class='elegant-subtitle'>AI AUTONOMOUS SELECTION & ROLLING</p>", unsafe_allow_html=True)
 
 # --- YAPAY ZEKA MODELİ ---
 @st.cache_resource 
@@ -85,10 +86,15 @@ def tum_tahminleri_hesapla(ev_guc, dep_guc, ev_form, dep_form, model):
     en_gercekci = max(tahminler, key=tahminler.get)
     return tahminler, en_gercekci, tahminler[en_gercekci]
 
-def kupon_cizdir(baslik, kupon_listesi):
+def kupon_cizdir(baslik, kupon_listesi, ai_secimi=False):
     with st.container(border=True):
-        st.markdown(f"<div style='text-align: center; font-weight: 300; letter-spacing: 1.5px; font-size: 1.1em; color: #6366f1;'>{baslik.upper()}</div>", unsafe_allow_html=True)
-        st.markdown("<hr style='margin-top: 10px; margin-bottom: 15px;'>", unsafe_allow_html=True)
+        if ai_secimi:
+            st.markdown(f"<div class='ai-choice'>🤖 YAPAY ZEKA GÜNÜN SEÇİMİ</div>", unsafe_allow_html=True)
+        else:
+            st.markdown(f"<div style='text-align: center; font-weight: 300; letter-spacing: 1.5px; font-size: 1.1em; color: #6366f1;'>{baslik.upper()}</div>", unsafe_allow_html=True)
+        
+        st.markdown("<hr style='margin-top: 5px; margin-bottom: 15px;'>", unsafe_allow_html=True)
+        
         if not kupon_listesi:
             st.caption("Veri yetersizliği nedeniyle filtre uygulandı.")
             return
@@ -106,7 +112,7 @@ def kupon_cizdir(baslik, kupon_listesi):
             st.markdown(f"<div style='margin-bottom: 12px;'><span style='color: #10b981; font-weight: 600;'>{k_mac['tercih']}</span> <span style='color:#94a3b8; font-size: 0.85em;'>| Oran: {k_mac['oran']:.2f}</span> {value_badge}</div>", unsafe_allow_html=True)
             wa_text += f"⚽ {k_mac['mac']}\n👉 Tahmin: {k_mac['tercih']} {wa_value_icon}\n📈 Oran: {k_mac['oran']:.2f}\n\n"
             
-        st.markdown(f"<div style='text-align: right; font-size: 1em; color: #333; margin-top: 10px; font-weight: bold;'>Toplam Oran: {toplam_oran:.2f}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='text-align: right; font-size: 1.2em; color: #333; margin-top: 10px; font-weight: bold;'>Net Oran: {toplam_oran:.2f}</div>", unsafe_allow_html=True)
         
         wa_text += f"💵 *Kupon Toplam Oranı: {toplam_oran:.2f}*"
         wa_link = f"https://api.whatsapp.com/send?text={urllib.parse.quote(wa_text)}"
@@ -150,7 +156,7 @@ elif "response" in data and len(data["response"]) > 0:
         st.session_state.aktif_ligler = secilen_ligler
         
     if st.session_state.analiz_aktif:
-        with st.spinner("Algoritmalar eşleşmeleri ve bahis oranlarını tarıyor..."):
+        with st.spinner("Yapay Zeka otonom seçimlerini yapıyor..."):
             tum_analizler = []
             lig_gruplari = {}
             for mac in data["response"]:
@@ -171,54 +177,55 @@ elif "response" in data and len(data["response"]) > 0:
                     tum_analizler.append({"mac": f"{ev} - {dep}", "saat": saat, "tercih": banko_tercih, "guven": banko_guven, "oran": oran, "is_value": is_value, "oran_ust": tahminler_sozlugu["2.5 Üst"], "oran_iy": tahminler_sozlugu["İY 0.5 Üst"], "oran_korner": tahminler_sozlugu["Korner 8.5 Üst"], "oran_ms0": tahminler_sozlugu["MS 0"]})
 
             st.write("")
-            # YENİ SEKME EKLENDİ: ROLLING (KASA KATLAMA)
             tab_rolling, tab_kombine, tab_ligler, tab_seffaflik = st.tabs(["🚀 KASA KATLAMA", "STRATEJİ KOMBİNELERİ", "DERİN LİG ANALİZİ", "SİSTEM PERFORMANSI"])
 
-            # --- YENİ BÖLÜM: KASA KATLAMA (ROLLING) ---
             with tab_rolling:
                 st.markdown("<br>", unsafe_allow_html=True)
-                st.markdown("<div class='rolling-box'><h3 style='margin:0; color:#065f46;'>🎯 Günlük %100 Büyüme (2.00 Oran) Stratejisi</h3><p style='margin-top:5px; margin-bottom:0; font-size:0.9em; color:#047857;'>Yapay Zeka, bugün oynanacak en güvenilir maçları birleştirerek tam <b>~2.00 Oran</b> hedefine ulaşan optimum kuponu aşağıda hazırladı.</p></div>", unsafe_allow_html=True)
+                st.markdown("<div class='rolling-box'><h3 style='margin:0; color:#065f46;'>🎯 Otonom %100 Büyüme Stratejisi</h3><p style='margin-top:5px; margin-bottom:0; font-size:0.9em; color:#047857;'>Yapay Zeka, tüm bülteni analiz ederek bugün kasa katlama serisine uygun <b>~2.00 Oranlı</b> spesifik bir seçim yaptı. Tekli veya en güvenilir akıllı kombinasyon.</p></div>", unsafe_allow_html=True)
                 
-                # Sorumlu bahis uyarısı (Şeffaflık ilkemiz gereği)
-                st.caption("⚠️ **DİKKAT:** 'Garanti' kupon diye bir şey yoktur. 20 gün üst üste kazanma ihtimali istatistiksel olarak zordur. Bu simülasyon stratejik planlama amaçlıdır.")
-                
-                # Rolling Kuponunu Oluşturma Algoritması (Hedef 2.00)
+                # --- YENİ YZ OTONOM 2.00 SEÇİM ALGORİTMASI ---
                 rolling_kupon = []
-                mevcut_oran = 1.0
-                # Maçları YZ güvenine göre en yüksekten düşüğe sırala
-                en_guvenilir_maclar = sorted(tum_analizler, key=lambda x: x["guven"], reverse=True)
+                # Önce 1.85 ile 2.20 arası tek maç var mı diye bakar (Kasa için tek maç idealdir)
+                tekli_adaylar = [m for m in tum_analizler if 1.85 <= m["oran"] <= 2.20 and m["guven"] >= 70]
                 
-                for m in en_guvenilir_maclar:
-                    if mevcut_oran < 1.95:
-                        rolling_kupon.append(m)
-                        mevcut_oran *= m["oran"]
-                    else:
-                        break
+                if tekli_adaylar:
+                    # Varsa en güvenilirini seç
+                    rolling_kupon = [sorted(tekli_adaylar, key=lambda x: x["guven"], reverse=True)[0]]
+                else:
+                    # Yoksa en yüksek güvenlileri toplayıp 1.95 - 2.15 aralığına ulaşmaya çalışır
+                    mevcut_oran = 1.0
+                    en_guvenilirler = sorted(tum_analizler, key=lambda x: x["guven"], reverse=True)
+                    for m in en_guvenilirler:
+                        if mevcut_oran < 1.95:
+                            rolling_kupon.append(m)
+                            mevcut_oran *= m["oran"]
+                        else:
+                            break
                 
                 col_kupon, col_sim = st.columns([1, 1])
                 with col_kupon:
                     if len(rolling_kupon) > 0:
-                        kupon_cizdir("GÜNÜN ROLLING KUPONU", rolling_kupon)
+                        kupon_cizdir("GÜNÜN ROLLING HEDEFİ", rolling_kupon, ai_secimi=True)
                     else:
-                        st.warning("Bugün 2.00 oranı tamamlayacak yeterli güvenilir veri bulunamadı.")
+                        st.warning("Bugün 2.00 oranı tamamlayacak yeterli güvenilir veri bulunamadı. Lütfen lig ekleyin.")
 
                 with col_sim:
                     with st.container(border=True):
                         st.markdown("<div style='text-align: center; font-weight: 300; letter-spacing: 1.5px; font-size: 1.1em; color: #6366f1;'>20 GÜNLÜK MİLYONER SİMÜLASYONU</div>", unsafe_allow_html=True)
                         st.markdown("<hr style='margin-top: 10px; margin-bottom: 10px;'>", unsafe_allow_html=True)
-                        st.markdown("<p style='font-size:0.85em; color:gray; text-align:center;'>Eğer her gün kasanın tamamını bu 2.00 oranlı yapay zeka kuponuna basarsan:</p>", unsafe_allow_html=True)
+                        st.markdown("<p style='font-size:0.85em; color:gray; text-align:center;'>Eğer her gün kasanın tamamını Yapay Zekanın 2.00 Oranlı seçimine basarsan:</p>", unsafe_allow_html=True)
                         
-                        # 20 Günlük Projeksiyon Tablosu
                         baslangic_kasasi = 100
                         gunler = []
                         kasa = baslangic_kasasi
                         for gun in range(1, 21):
-                            gunler.append({"Gün": f"{gun}. Gün", "Yatırılan": f"{int(kasa):,} ₺", "Hedeflenen (2.00x)": f"{int(kasa*2):,} ₺"})
+                            gunler.append({"Gün": f"{gun}. Gün", "Yatırılan": f"{int(kasa):,} ₺", "Hedeflenen": f"{int(kasa*2):,} ₺"})
                             kasa *= 2
                             
                         df_simulasyon = pd.DataFrame(gunler)
                         st.dataframe(df_simulasyon, hide_index=True, use_container_width=True, height=250)
                         st.success(f"💰 20. Günün Sonundaki Hedef Bakiye: **104.857.600 ₺**")
+                        st.caption("⚠️ İstatistiksel Projeksiyondur. Garanti kupon yoktur.")
 
             with tab_kombine:
                 st.write("")
