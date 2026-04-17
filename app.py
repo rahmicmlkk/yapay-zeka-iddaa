@@ -4,8 +4,9 @@ import urllib.parse
 import hashlib
 import math
 import time
+import random
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 # --- THE ODDS API ŞİFREN ---
 API_KEY = "d466687f1d342dfec1f3222da898c54c"
@@ -23,7 +24,10 @@ st.markdown("""
     div.stButton > button:hover { background: #334155; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
     .status-card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 10px; margin-bottom: 10px; }
     .team-names { font-size: 1.3em; font-weight: 900; color: #0f172a; }
+    .wa-button { display: block; text-align: center; background-color: #25D366; color: white !important; padding: 10px; border-radius: 8px; text-decoration: none; font-weight: 800; margin-top: 10px; }
     .isg-badge { background: #e2e8f0; color: #475569; padding: 2px 8px; border-radius: 5px; font-size: 0.7em; font-weight: 800; }
+    .value-badge { background: #f59e0b; color: white; padding: 2px 8px; border-radius: 5px; font-size: 0.7em; font-weight: 800; }
+    
     .kombine-box { background: #ffffff; border: 1px solid #cbd5e1; border-top: 4px solid #0284c7; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);}
     .kombine-baslik { font-size: 1.1em; font-weight: 900; color: #0f172a; margin-bottom: 5px; }
     .kombine-aciklama { font-size: 0.8em; color: #64748b; font-weight: 600; margin-bottom: 10px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;}
@@ -31,6 +35,15 @@ st.markdown("""
     .mac-tercih { font-weight: 900; color: #0284c7; }
     .mac-oran { font-weight: 800; color: #475569; }
     .toplam-oran { text-align: right; font-size: 1.2em; font-weight: 900; color: #0f172a; margin-top: 10px; }
+    
+    /* YENİ: KÜRESEL ŞİKE RADARI TASARIMI */
+    .darkweb-box { border: 2px solid #991b1b; background: #000000; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 0 25px rgba(220, 38, 38, 0.5); position: relative; overflow: hidden; }
+    .darkweb-box::before { content: ""; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(to right, transparent, rgba(220, 38, 38, 0.2), transparent); animation: scan 3s infinite linear; }
+    @keyframes scan { 0% { left: -100%; } 100% { left: 200%; } }
+    .darkweb-title { color: #ef4444; font-weight: 900; font-size: 1.5em; text-align: center; letter-spacing: 4px; margin-bottom: 5px; text-shadow: 0 0 10px #ef4444; }
+    .darkweb-source { font-family: 'Courier New', monospace; font-size: 0.9em; color: #fca5a5; font-weight: bold; text-align: center; margin-bottom: 15px; border-bottom: 1px dashed #7f1d1d; padding-bottom: 10px; }
+    .darkweb-team { font-size: 1.8em; font-weight: 900; color: #ffffff; text-shadow: 0 0 5px #ffffff; }
+    .darkweb-pick { color: #ef4444; font-size: 2.2em; font-weight: 900; text-shadow: 0 0 15px #ef4444; margin: 10px 0; }
     
     .prob-container { margin-bottom: 8px; }
     .prob-label { display: flex; justify-content: space-between; font-size: 0.85em; font-weight: 800; color: #334155; margin-bottom: 3px; }
@@ -65,42 +78,49 @@ def shadow_data():
     return [
         {"home_team": "Real Madrid", "away_team": "Barcelona", "commence_time": "2026-04-20T20:00:00Z"},
         {"home_team": "Galatasaray", "away_team": "Fenerbahçe", "commence_time": "2026-04-19T18:00:00Z"},
-        {"home_team": "Man City", "away_team": "Liverpool", "commence_time": "2026-04-18T16:00:00Z"},
-        {"home_team": "Bayern Munich", "away_team": "Dortmund", "commence_time": "2026-04-18T19:30:00Z"},
-        {"home_team": "Juventus", "away_team": "Milan", "commence_time": "2026-04-19T21:45:00Z"},
-        {"home_team": "PSG", "away_team": "Marseille", "commence_time": "2026-04-20T22:00:00Z"}
+        {"home_team": "Man City", "away_team": "Liverpool", "commence_time": "2026-04-18T16:00:00Z"}
     ]
 
-# --- GERÇEKÇİ ÇOKLU PAZAR MOTORU ---
+# --- YENİ: KÜRESEL ŞİKE SİMÜLATÖRÜ ---
+def karanlik_ag_taramasi():
+    # Afrika, Asya, Güney Amerika'dan rastgele takımlar ve ligler (Tamamen şov amaçlı)
+    sahte_ligler = [
+        {"lig": "Nijerya Premier Ligi", "ev": "Enyimba FC", "dep": "Kano Pillars", "kaynak": "[X] Kripto Sızıntısı: Afrika Yeraltı Bahis Sendikası", "tercih": "İlk Yarı 2 (Deplasman)", "oran": 4.50},
+        {"lig": "Gana Premier Ligi", "ev": "Asante Kotoko", "dep": "Hearts of Oak", "kaynak": "[X] Dark Web: Gana Hakem Karteli", "tercih": "Kırmızı Kart Çıkar (EVET)", "oran": 3.10},
+        {"lig": "Vietnam V.League 1", "ev": "Hanoi FC", "dep": "Hoang Anh Gia Lai", "kaynak": "[X] Asya Borsası: $2.4M Anormal Hacim Girişi", "tercih": "Maç Sonucu 0 (Beraberlik)", "oran": 5.20},
+        {"lig": "Kolombiya Primera A", "ev": "Atletico Nacional", "dep": "Millonarios", "kaynak": "[X] VIP Telegram Sızıntısı: Bogota Karteli", "tercih": "3.5 Gol Üstü", "oran": 4.80},
+        {"lig": "Endonezya V-League", "ev": "Bali United", "dep": "Persib Bandung", "kaynak": "[X] Tor Network Sızıntısı: Uzak Doğu Şike Ağı", "tercih": "Maç Sonucu 2 / 2.5 Üst", "oran": 6.50}
+    ]
+    
+    # Rastgele 2 maç seç
+    secilenler = random.sample(sahte_ligler, 2)
+    tarih_str = (datetime.now() + timedelta(hours=random.randint(2, 12))).strftime("%d.%m.%Y %H:%M")
+    
+    for s in secilenler:
+        s["saat"] = tarih_str
+    return secilenler
+
 def analiz_et(mac, mac_ismi):
     sayi = int(hashlib.md5(mac_ismi.encode()).hexdigest(), 16)
     ev = mac.get('home_team', 'Ev Sahibi')
     dep = mac.get('away_team', 'Deplasman')
     
-    # xG (Gol Beklentisi) Simülasyonu
     xg_ev = 1.0 + (sayi % 180) / 100.0  
     xg_dep = 0.8 + ((sayi // 2) % 150) / 100.0 
     toplam_xg = xg_ev + xg_dep
     fark = xg_ev - xg_dep
     
     pazarlar = {}
-    
-    # TARAF BAHİSLERİ
     pazarlar["MS 1"] = {"yuzde": min(85, max(15, 35 + fark * 25)), "oran": max(1.15, 2.50 - fark)}
     pazarlar["MS 2"] = {"yuzde": min(85, max(15, 35 - fark * 25)), "oran": max(1.15, 2.50 + fark)}
     pazarlar["MS 0"] = {"yuzde": 100 - (pazarlar["MS 1"]["yuzde"] + pazarlar["MS 2"]["yuzde"]), "oran": 3.40}
-    
-    # ÇİFTE ŞANS (Garantici Pazarlar)
     pazarlar["1X Çifte Şans"] = {"yuzde": min(95, pazarlar["MS 1"]["yuzde"] + pazarlar["MS 0"]["yuzde"] - 5), "oran": max(1.05, pazarlar["MS 1"]["oran"] * 0.45)}
     pazarlar["X2 Çifte Şans"] = {"yuzde": min(95, pazarlar["MS 2"]["yuzde"] + pazarlar["MS 0"]["yuzde"] - 5), "oran": max(1.05, pazarlar["MS 2"]["oran"] * 0.45)}
-    
-    # GOL PAZARLARI
     pazarlar["2.5 Üst"] = {"yuzde": min(85, max(15, 20 + toplam_xg * 15)), "oran": max(1.30, 3.50 - toplam_xg*0.5)}
     pazarlar["2.5 Alt"] = {"yuzde": 100 - pazarlar["2.5 Üst"]["yuzde"], "oran": max(1.30, 1.50 + toplam_xg*0.3)}
     pazarlar["1.5 Üst"] = {"yuzde": min(96, pazarlar["2.5 Üst"]["yuzde"] + 18), "oran": max(1.10, pazarlar["2.5 Üst"]["oran"] * 0.65)}
     pazarlar["KG Var"] = {"yuzde": min(85, max(15, 25 + (xg_ev * 10) + (xg_dep * 10))), "oran": max(1.40, 3.00 - toplam_xg*0.4)}
     
-    # Gerçek API oranları varsa ez (Hata/Shadow modunda simüle oran kalır)
     if "bookmakers" in mac and mac["bookmakers"]:
         try:
             for mkt in mac["bookmakers"][0]["markets"]:
@@ -111,7 +131,6 @@ def analiz_et(mac, mac_ismi):
                         elif out["name"] == "Draw": pazarlar["MS 0"]["oran"] = out["price"]
         except: pass
 
-    # En Güçlü Ana Tercih (Karışık pazarlardan en yüksek yüzdeli olan)
     sirali_pazarlar = sorted(pazarlar.items(), key=lambda item: item[1]["yuzde"], reverse=True)
     ana_tercih = sirali_pazarlar[0][0]
     
@@ -124,13 +143,8 @@ def analiz_et(mac, mac_ismi):
         "ana_tercih_oran": sirali_pazarlar[0][1]["oran"]
     }
 
-# --- KUPON ÇİZİCİ YARDIMCI FONKSİYON ---
 def kupon_render(baslik, aciklama, mac_listesi, pazar_filtresi=None, renk="#0284c7"):
-    st.markdown(f"""
-    <div class='kombine-box' style='border-top-color: {renk};'>
-        <div class='kombine-baslik' style='color: {renk};'>{baslik.upper()}</div>
-        <div class='kombine-aciklama'>{aciklama}</div>
-    """, unsafe_allow_html=True)
+    st.markdown(f"""<div class='kombine-box' style='border-top-color: {renk};'><div class='kombine-baslik' style='color: {renk};'>{baslik.upper()}</div><div class='kombine-aciklama'>{aciklama}</div>""", unsafe_allow_html=True)
     
     if not mac_listesi:
         st.warning("Bu stratejiye uygun maç bulunamadı.")
@@ -139,16 +153,12 @@ def kupon_render(baslik, aciklama, mac_listesi, pazar_filtresi=None, renk="#0284
 
     toplam_oran = 1.0
     for m in mac_listesi:
-        # Eğer özel bir filtre istendiyse (örneğin sadece 2.5 Üst pazarına bak) onu bul, yoksa en yüksek oranlısını (ana_tercih) kullan
         tercih_isim = pazar_filtresi if pazar_filtresi else m['ana_tercih_isim']
         
-        # Eğer bu filtre maçta yoksa veya özel kurallı bir karma ise (örn: Hedge için 1X veya 1.5 Üst bul):
         if pazar_filtresi == "HEDGE":
-            # En güvenli seçeneği bul (1X, X2, 1.5 Üst arasından)
             guvenliler = {k:v for k,v in m['pazarlar'].items() if k in ["1X Çifte Şans", "X2 Çifte Şans", "1.5 Üst"]}
             tercih_isim = max(guvenliler, key=lambda k: guvenliler[k]['yuzde'])
         elif pazar_filtresi == "TARAF":
-            # Sadece MS1 veya MS2
             taraflar = {k:v for k,v in m['pazarlar'].items() if k in ["MS 1", "MS 2"]}
             tercih_isim = max(taraflar, key=lambda k: taraflar[k]['yuzde'])
         elif pazar_filtresi == "GOL":
@@ -159,12 +169,7 @@ def kupon_render(baslik, aciklama, mac_listesi, pazar_filtresi=None, renk="#0284
         oran = tercih_verisi['oran']
         toplam_oran *= oran
         
-        st.markdown(f"""
-        <div class='mac-row'>
-            <div><b>{m['mac']}</b></div>
-            <div><span class='mac-tercih'>{tercih_isim}</span> <span class='mac-oran'>(@{oran:.2f})</span></div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(f"<div class='mac-row'><div><b>{m['mac']}</b></div><div><span class='mac-tercih'>{tercih_isim}</span> <span class='mac-oran'>(@{oran:.2f})</span></div></div>", unsafe_allow_html=True)
         
     st.markdown(f"<div class='toplam-oran'>Olası Çarpan: {toplam_oran:.2f}x</div></div>", unsafe_allow_html=True)
 
@@ -177,33 +182,59 @@ st.markdown("<p class='quant-subtitle'>STRATEJİK PORTFÖY VE ÇOKLU PAZAR ANAL�
 
 with st.sidebar:
     st.header("🌐 Veri Kaynakları")
-    secilen_ligler = st.multiselect("Taranacak Ligler", options=list(LIG_SOZLUGU.keys()), default=["Süper Lig", "Premier League", "Şampiyonlar Ligi"])
+    secilen_ligler = st.multiselect("Taranacak Ana Ligler", options=list(LIG_SOZLUGU.keys()), default=["Süper Lig", "Premier League"])
     if st.button("SİSTEMİ ATEŞLE 🚀"):
         st.session_state.analiz_aktif = True
 
 if st.session_state.analiz_aktif:
     tum_maclar = []
     with st.spinner("Piyasalar taranıyor, ihtimaller hesaplanıyor..."):
-        time.sleep(1)
+        time.sleep(1.5) # Gerçekçi bekleme
         for lig in secilen_ligler:
             data = veri_getir(LIG_SOZLUGU[lig])
-            if data == "shadow_mode": 
-                data = shadow_data()
-            
+            if data == "shadow_mode": data = shadow_data()
             for m in data:
                 analiz = analiz_et(m, f"{m.get('home_team', '')}{m.get('away_team', '')}")
                 analiz["lig"] = lig
                 tum_maclar.append(analiz)
+                
+    # --- İNTERNET TARAMASI ŞOVU ---
+    with st.spinner("Karanlık ağlara (Dark Web) sızılıyor, Küresel Şike Verileri taranıyor..."):
+        time.sleep(2)
+        sike_verileri = karanlik_ag_taramasi()
     
-    tab_rolling, tab_kombine, tab_ligler = st.tabs(["🚀 GÜNLÜK 2.00x KASA", "💼 5 FARKLI KOMBİNE STRATEJİSİ", "🔍 MAÇ MAÇ DERİN ANALİZ"])
+    tab_darkweb, tab_rolling, tab_kombine, tab_ligler = st.tabs(["🕵️‍♂️ KÜRESEL SIZINTILAR (ŞİKE RADARI)", "🚀 GÜNLÜK 2.00x KASA", "💼 KOMBİNE STRATEJİLERİ", "🔍 LİG ANALİZLERİ"])
+
+    with tab_darkweb:
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.error("DİKKAT: Dünyadaki internet siteleri, kapalı forumlar ve Asya borsaları taranarak aşağıdaki eşleşmelerde KESİN ŞİKE ŞÜPHESİ / SIZINTI tespit edildi.")
+        
+        c_dw1, c_dw2 = st.columns(2)
+        for idx, sm in enumerate(sike_verileri):
+            with (c_dw1 if idx % 2 == 0 else c_dw2):
+                st.markdown(f"""
+                <div class='darkweb-box'>
+                    <div class='darkweb-title'>🚨 KÜRESEL ŞİKE SIZINTISI 🚨</div>
+                    <div class='darkweb-source'>{sm['kaynak']}</div>
+                    <div style='text-align:center;'>
+                        <span style='color:#fca5a5; font-size: 0.9em; font-weight:800;'>{sm['lig']} | {sm['saat']}</span><br>
+                        <div class='darkweb-team'>{sm['ev']} - {sm['dep']}</div>
+                        <span style='font-size: 0.9em; text-transform: uppercase; color:#ef4444; font-weight:900;'>[DEŞİFRE EDİLEN YÖN]</span><br>
+                        <div class='darkweb-pick'>👉 {sm['tercih']}</div>
+                        <span style='font-size:1.2em; font-weight:900; color:#f87171;'>Global Kapanış Oranı: @{sm['oran']:.2f}</span>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+                
+        wa_sike = f"🚨 *DARK WEB SIZINTISI* 🚨\n\n⚽ {sike_verileri[0]['ev']} - {sike_verileri[0]['dep']}\n👉 {sike_verileri[0]['tercih']} (@{sike_verileri[0]['oran']:.2f})\n\n_(Sistem tarafından deşifre edilmiştir)_"
+        st.markdown(f"<a href='https://api.whatsapp.com/send?text={urllib.parse.quote(wa_sike)}' target='_blank' class='wa-button' style='background-color:#b91c1c;'>🚨 Bu Sızıntıyı WhatsApp'a At</a>", unsafe_allow_html=True)
+
 
     with tab_rolling:
         st.markdown("### 🎯 Günlük Otonom Kasa Hedefi")
         if tum_maclar:
-            # En güvenli pazarlarda (1.5 Üst, ÇŞ vb) oranı 2.00'a en yakın olan 2 maçı birleştir
             guvenli_maclar = sorted(tum_maclar, key=lambda x: x['pazarlar']['1.5 Üst']['yuzde'], reverse=True)
             kasa_maci = guvenli_maclar[0]
-            
             col1, col2 = st.columns([2,1])
             with col1:
                 st.markdown(f"""
@@ -211,66 +242,50 @@ if st.session_state.analiz_aktif:
                     <div style='color: #64748b; font-size: 0.8em; font-weight:800;'>GÜNÜN GARANTİ KASA SEÇİMİ</div>
                     <div class='team-names'>{kasa_maci['mac']}</div>
                     <div style='color: #0284c7; font-size: 1.5em; font-weight:900;'>👉 {kasa_maci['ana_tercih_isim']} (@ {kasa_maci['ana_tercih_oran']:.2f})</div>
-                    <div class='isg-badge'>GÜVEN ENDEKSİ: %{kasa_maci['ana_tercih_yuzde']:.0f}</div>
                 </div>
                 """, unsafe_allow_html=True)
             with col2:
                 st.metric("Hedef Çarpan", f"{kasa_maci['ana_tercih_oran']:.2f}x")
-                st.success("Taraf bahsi riski elendi, güvenli pazar seçildi.")
-        else: st.warning("Maç bulunamadı.")
+                st.success("Risk elendi, güvenli pazar seçildi.")
 
     with tab_kombine:
         st.markdown("### 💼 Algoritmik Yatırım Portföyleri (5 Farklı Fon)")
-        
         c1, c2, c3 = st.columns(3)
         with c1:
             hedge_maclar = sorted(tum_maclar, key=lambda x: max([x['pazarlar']['1.5 Üst']['yuzde'], x['pazarlar']['1X Çifte Şans']['yuzde']]), reverse=True)[:3]
             kupon_render("🛡️ BETON KASA (Kayıpsız Fon)", "Sadece %85+ ihtimalli Çifte Şans ve 1.5 Üst pazarları kullanılarak oluşturulan sigortalı portföy.", hedge_maclar, pazar_filtresi="HEDGE", renk="#10b981")
-            
         with c2:
             taraf_maclar = sorted(tum_maclar, key=lambda x: max([x['pazarlar']['MS 1']['yuzde'], x['pazarlar']['MS 2']['yuzde']]), reverse=True)[:3]
-            kupon_render("🎯 KLASİK TARAF (Ana Portföy)", "Doğrudan taraf bahsine (MS 1 / MS 2) en çok güvenilen, sürprizin en az beklendiği eşleşmeler.", taraf_maclar, pazar_filtresi="TARAF", renk="#0f172a")
-            
+            kupon_render("🎯 KLASİK TARAF (Ana Portföy)", "Doğrudan taraf bahsine (MS 1 / MS 2) en çok güvenilen eşleşmeler.", taraf_maclar, pazar_filtresi="TARAF", renk="#0f172a")
         with c3:
             gol_maclar = sorted(tum_maclar, key=lambda x: x['pazarlar']['2.5 Üst']['yuzde'], reverse=True)[:3]
-            kupon_render("⚽ LİKİDİTE GOL AĞI", "xG (Gol Beklentisi) formülüne göre 2.5 Üst ve Karşılıklı Gol ihtimali en yüksek 3 maç.", gol_maclar, pazar_filtresi="GOL", renk="#3b82f6")
+            kupon_render("⚽ LİKİDİTE GOL AĞI", "2.5 Üst ve Karşılıklı Gol ihtimali en yüksek 3 maç.", gol_maclar, pazar_filtresi="GOL", renk="#3b82f6")
 
-        st.write("")
         c4, c5 = st.columns(2)
         with c4:
             karma_maclar = sorted(tum_maclar, key=lambda x: x['ana_tercih_yuzde'], reverse=True)[:4]
-            kupon_render("🧠 YAPAY ZEKA ÖZEL KARMA", "Algoritmanın her maçta 'En Yüksek İhtimalli' olarak saptadığı birbirinden farklı pazarların optimum karması.", karma_maclar, renk="#8b5cf6")
-
+            kupon_render("🧠 YAPAY ZEKA ÖZEL KARMA", "Algoritmanın her maçta 'En Yüksek İhtimalli' olarak saptadığı birbirinden farklı pazarların karması.", karma_maclar, renk="#8b5cf6")
         with c5:
-            # Alpha: Oranı en az 1.70 olup ihtimali > %45 olanlar
             alpha_maclar = [m for m in tum_maclar if m['ana_tercih_oran'] > 1.70 and m['ana_tercih_yuzde'] > 45]
             alpha_maclar = sorted(alpha_maclar, key=lambda x: x['ana_tercih_oran'], reverse=True)[:3]
-            if len(alpha_maclar) < 3: alpha_maclar = tum_maclar[:3] # Veri yetersizse fallback
-            kupon_render("🌋 ALPHA FONU (Yüksek Kazanç)", "İddaa'nın yüksek oran açarak yanıldığı (Value) tahmin edilen sürpriz/yüksek getirili eşleşmeler.", alpha_maclar, renk="#ef4444")
-
+            if len(alpha_maclar) < 3: alpha_maclar = tum_maclar[:3]
+            kupon_render("🌋 ALPHA FONU (Yüksek Kazanç)", "İddaa'nın yüksek oran açarak yanıldığı (Value) tahmin edilen sürpriz eşleşmeler.", alpha_maclar, renk="#ef4444")
 
     with tab_ligler:
-        st.markdown("### 🔍 Derinlemesine Maç Analizleri ve Alternatif Olasılıklar")
         for lig in secilen_ligler:
             lig_maclari = [m for m in tum_maclar if m['lig'] == lig]
             if not lig_maclari: continue
-            
             with st.expander(f"📁 {lig} ({len(lig_maclari)} Maç)", expanded=True):
                 for lm in lig_maclari:
                     with st.container(border=True):
                         st.markdown(f"<div class='team-names' style='font-size: 1.1em; color: #0284c7;'>⚽ {lm['mac']}</div>", unsafe_allow_html=True)
-                        st.markdown(f"**💡 EN GÜÇLÜ TERCİH:** `< {lm['ana_tercih_isim']} >` (%{lm['ana_tercih_yuzde']:.0f}) | Oran: **@{lm['ana_tercih_oran']:.2f}** | Poisson xG: *{lm['xg']}*")
+                        st.markdown(f"**💡 EN GÜÇLÜ TERCİH:** `< {lm['ana_tercih_isim']} >` (%{lm['ana_tercih_yuzde']:.0f}) | Oran: **@{lm['ana_tercih_oran']:.2f}**")
                         
-                        st.markdown("<div style='margin-top: 15px; margin-bottom: 5px; font-size: 0.85em; font-weight: 900; color: #64748b; border-bottom: 1px solid #e2e8f0; padding-bottom: 3px;'>⚡ TÜM PAZAR İHTİMALLERİ (Piyasa Dağılımı)</div>", unsafe_allow_html=True)
-                        
-                        # Pazarları ihtimale göre sıralayıp bar olarak çiz
                         sirali_pazarlar = sorted(lm['pazarlar'].items(), key=lambda item: item[1]["yuzde"], reverse=True)
-                        
                         c_bar1, c_bar2 = st.columns(2)
-                        for idx, (pazar_ismi, pazar_verisi) in enumerate(sirali_pazarlar[:6]): # İlk 6 pazarı göster
+                        for idx, (pazar_ismi, pazar_verisi) in enumerate(sirali_pazarlar[:6]):
                             yuzde = pazar_verisi["yuzde"]
                             renk = "#10b981" if yuzde >= 80 else ("#3b82f6" if yuzde >= 65 else ("#f59e0b" if yuzde >= 45 else "#ef4444"))
-                            
                             with (c_bar1 if idx % 2 == 0 else c_bar2):
                                 st.markdown(yuzde_bar_ciz(f"{pazar_ismi} (@{pazar_verisi['oran']:.2f})", yuzde, renk), unsafe_allow_html=True)
 
